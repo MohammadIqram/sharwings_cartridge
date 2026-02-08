@@ -42,13 +42,21 @@ const cart = [
   },
 ];
 
+interface AddressProp {
+ fullName: string;
+ phone: string;
+ street: string;
+ city: string;
+ state: string;
+ zipCode: string;
+}
 
 export default function CartPage () {
   const { navigate } = useNavigation();
-  const [address, setAddress] = useState(null);
+  const [address, setAddress] = useState<AddressProp | null>(null);
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [showAddressModal, setShowAddressModal] = useState(false);
-  const [addressForm, setAddressForm] = useState({
+  const [addressForm, setAddressForm] = useState<AddressProp>({
     fullName: '',
     phone: '',
     street: '',
@@ -65,7 +73,7 @@ export default function CartPage () {
     }
   };
 
-  const handleAddressChange = (e) => {
+  const handleAddressChange = (e : any) => {
     const { name, value } = e.target;
     setAddressForm(prev => ({ ...prev, [name]: value }));
   };
