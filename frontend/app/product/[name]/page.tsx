@@ -14,7 +14,7 @@ import { products } from '@/common/data';
 import { useNavigation } from '@/components/hooks/useNavigation';
 import ProductCard from '@/components/common/product/ProductCard';
 
-function Pdp () {
+export default function Pdp () {
   const [product, setProduct] = useState<Product | null>(null);
   const [related, setRelated] = useState([]);
   const [qty, setQty] = useState(1);
@@ -53,7 +53,7 @@ function Pdp () {
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
           <button onClick={() => navigate('/')} className="hover:text-foreground">Home</button>
           <ChevronRight className="w-3 h-3" />
-          <button onClick={() => navigate(`/category/${product.slug}`)} className="hover:text-foreground">{product.categoryName}</button>
+          <button onClick={() => navigate(`/category/${product.slug}`)} className="hover:text-foreground">{product.category}</button>
           <ChevronRight className="w-3 h-3" />
           <span className="text-foreground font-medium truncate">{product.name}</span>
         </div>
@@ -65,27 +65,27 @@ function Pdp () {
           <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>
             <div className="flex items-center gap-2 mb-2">
               <Badge variant="outline" className="text-xs">{product.brand}</Badge>
-              <Badge variant="outline" className="text-xs">{product.categoryName}</Badge>
+              <Badge variant="outline" className="text-xs">{product.category}</Badge>
             </div>
             <h1 className="text-3xl md:text-4xl font-bold mb-3">{product.name}</h1>
             <div className="flex items-center gap-2 mb-4">
-              <div className="flex">{[...Array(5)].map((_, i) => <Star key={i} className={`w-4 h-4 ${i < Math.floor(product.rating) ? 'fill-amber-400 text-amber-400' : 'fill-gray-200 text-gray-200'}`} />)}</div>
+              <div className="flex">{[...Array(5)].map((_, i) => <Star key={i} className={`w-4 h-4 ${i < Math.floor(product.rating || 0) ? 'fill-amber-400 text-amber-400' : 'fill-gray-200 text-gray-200'}`} />)}</div>
               <span className="text-sm text-muted-foreground">{product.rating} ({product.reviews} reviews)</span>
             </div>
             <div className="flex items-baseline gap-3 mb-6">
               <span className="text-4xl font-bold">${product.price}</span>
-              {product.originalPrice && <span className="text-xl text-muted-foreground line-through">${product.originalPrice}</span>}
-              {discount > 0 && <Badge className="bg-red-100 text-red-600 hover:bg-red-100">Save ${product.originalPrice - product.price}</Badge>}
+              {product.salePrice && <span className="text-xl text-muted-foreground line-through">${product.salePrice}</span>}
+              {discount > 0 && <Badge className="bg-red-100 text-red-600 hover:bg-red-100">Save ${product.salePrice - product.price}</Badge>}
             </div>
             <p className="text-muted-foreground leading-relaxed mb-6">{product.description}</p>
-            {product.features && product.features.length > 0 && (
+            {/* {product.features && product.features.length > 0 && (
               <div className="mb-6">
                 <h3 className="font-semibold mb-3">Key Features</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {product.features.map((f, i) => <div key={i} className="flex items-center gap-2 text-sm"><CheckCircle className="w-4 h-4 text-green-500 shrink-0" />{f}</div>)}
                 </div>
               </div>
-            )}
+            )} */}
             <Separator className="my-6" />
             <div className="flex items-center gap-4 mb-6">
               <span className="text-sm font-medium">Quantity:</span>
@@ -112,7 +112,7 @@ function Pdp () {
           <div className="mt-16 md:mt-20">
             <h2 className="text-2xl font-bold mb-8">You May Also Like</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-              {related.map(p => <ProductCard key={p.id} product={p} onAddToCart={onAddToCart} navigate={navigate} />)}
+              {related.map(p => <ProductCard key={p._id} product={p} onAddToCart={onAddToCart} navigate={navigate} />)}
             </div>
           </div>
         )}
