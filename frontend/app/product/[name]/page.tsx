@@ -115,49 +115,78 @@
 //   );
 // }
 
-import { useState } from 'react';
+'use client';
+
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ShoppingCart, Star, ChevronRight, Minus, Plus, Truck, Shield, RotateCcw } from 'lucide-react';
+import {
+  ShoppingCart, Star, ChevronRight, Minus, Plus, Truck, Shield, RotateCcw
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Product } from '@/common/types';
 import { products } from '@/common/data';
 import ProductCard from '@/components/common/product/ProductCard';
 
-interface PdpProps {
-  params: { name: string };
-}
+export default function Pdp() {
+  const [product, setProduct] = useState<Product | null>(null);
+  const [related, setRelated] = useState<Product[]>([]);
+  const [qty, setQty] = useState(1);
+  const [loading, setLoading] = useState(true);
 
-export async function generateStaticParams() {
-  return products.map(p => ({ name: p.name }));
-}
+  const router = useRouter();
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+  const pname = pathname.split('/').pop() || '';
 
-export default function Pdp({ params }: PdpProps) {
-  const product = products.find(p => p.name === params.name) || products[0];
-  const related = products.filter(p => p.category === product.category && p.name !== product.name);
+  useEffect(() => {
+    setLoading(true);
+    const p = products.find(p => p.name === pname) || products[0];
+    setProduct(p);
+    setRelated(products.filter(x => x.category === p.category && x.name !== p.name));
+    setLoading(false);
+  }, [pname]);
+
+  if (loading) return (
+    <div className="container mx-auto px-4 py-20">
+      <div className="grid md:grid-cols-2 gap-10">
+        <div className="aspect-square bg-muted animate-pulse rounded-2xl" />
+        <div className="space-y-4">
+          <div className="h-8 bg-muted animate-pulse rounded w-3/4" />
+          <div className="h-4 bg-muted animate-pulse rounded w-1/2" />
+          <div className="h-4 bg-muted animate-pulse rounded w-full" />
+        </div>
+      </div>
+    </div>
+  );
+
+  if (!product) return (
+    <div className="container mx-auto px-4 py-20 text-center">
+      <h2 className="text-2xl font-bold">Product not found</h2>
+      <Button className="mt-4" onClick={() => router.push('/')}>Go Home</Button>
+    </div>
+  );
+
   const discount = product.salePrice ? Math.round((1 - product.price / product.salePrice) * 100) : 0;
 
-  const [qty, setQty] = useState(1);
-
-  const onAddToCart = (p: typeof product) => {
-    console.log('Added to cart:', p.name, qty);
+  const onAddToCart = (p: Product) => {
+    console.log('Added to cart:', p.name);
   };
-
-  const navigate = (path: string) => (window.location.href = path);
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-8 md:py-12">
       <div className="container mx-auto px-4">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-          <button onClick={() => navigate('/')} className="hover:text-foreground">Home</button>
+          <button onClick={() => router.push('/')} className="hover:text-foreground">Home</button>
           <ChevronRight className="w-3 h-3" />
-          <button onClick={() => navigate(`/category/${product.slug}`)} className="hover:text-foreground">{product.category}</button>
+          <button onClick={() => router.push(`/category/${product.category}`)} className="hover:text-foreground">{product.category}</button>
           <ChevronRight className="w-3 h-3" />
           <span className="text-foreground font-medium truncate">{product.name}</span>
         </div>
 
-        {/* Product Grid */}
+        {/* Product details */}
         <div className="grid md:grid-cols-2 gap-8 md:gap-12">
           <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
             <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
@@ -169,9 +198,13 @@ export default function Pdp({ params }: PdpProps) {
               <Badge variant="outline" className="text-xs">{product.brand}</Badge>
               <Badge variant="outline" className="text-xs">{product.category}</Badge>
             </div>
+
             <h1 className="text-3xl md:text-4xl font-bold mb-3">{product.name}</h1>
+
             <div className="flex items-center gap-2 mb-4">
-              <div className="flex">{[...Array(5)].map((_, i) => <Star key={i} className={`w-4 h-4 ${i < Math.floor(product.rating || 0) ? 'fill-amber-400 text-amber-400' : 'fill-gray-200 text-gray-200'}`} />)}</div>
+              <div className="flex">
+                {[...Array(5)].map((_, i) => <Star key={i} className={`w-4 h-4 ${i < Math.floor(product.rating || 0) ? 'fill-amber-400 text-amber-400' : 'fill-gray-200 text-gray-200'}`} />)}
+              </div>
               <span className="text-sm text-muted-foreground">{product.rating} ({product.reviews} reviews)</span>
             </div>
 
@@ -195,8 +228,8 @@ export default function Pdp({ params }: PdpProps) {
             </div>
 
             <div className="flex gap-3">
-              <Button size="lg" className="flex-1 h-12 text-base" onClick={() => onAddToCart(product)}><ShoppingCart className="w-5 h-5 mr-2" /> Add to Cart</Button>
-              <Button size="lg" variant="outline" className="h-12" onClick={() => onAddToCart(product)}>Buy Now</Button>
+              <Button size="lg" className="flex-1 h-12 text-base" onClick={() => { for(let i=0;i<qty;i++) onAddToCart(product); }}><ShoppingCart className="w-5 h-5 mr-2" /> Add to Cart</Button>
+              <Button size="lg" variant="outline" className="h-12" onClick={() => { for(let i=0;i<qty;i++) onAddToCart(product); router.push('/cart'); }}>Buy Now</Button>
             </div>
 
             <div className="mt-6 grid grid-cols-3 gap-3">
@@ -209,11 +242,12 @@ export default function Pdp({ params }: PdpProps) {
           </motion.div>
         </div>
 
+        {/* Related products */}
         {related.length > 0 && (
           <div className="mt-16 md:mt-20">
             <h2 className="text-2xl font-bold mb-8">You May Also Like</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-              {related.map(p => <ProductCard key={p._id} product={p} onAddToCart={onAddToCart} navigate={navigate} />)}
+              {related.map(p => <ProductCard key={p.name} product={p} onAddToCart={onAddToCart} navigate={(url:string)=>router.push(url)} />)}
             </div>
           </div>
         )}
@@ -221,3 +255,4 @@ export default function Pdp({ params }: PdpProps) {
     </motion.div>
   );
 }
+
