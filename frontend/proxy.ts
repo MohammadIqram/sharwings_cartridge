@@ -21,6 +21,7 @@ export function proxy(req: NextRequest) {
     pathname.startsWith('/_next/image') ||
     pathname.startsWith('/api') ||   // API routes
     PUBLIC_PATHS.includes(pathname) || // public pages
+    pathname.startsWith('/images/') ||
     pathname === '/favicon.ico'
   ) {
     return NextResponse.next();
