@@ -7,18 +7,19 @@ import { Input } from '@/components/ui/input';
 import { ChevronRight } from 'lucide-react';
 import { useNavigation } from '@/components/hooks/useNavigation';
 import { Spinner } from '@/components/ui/spinner';
+import { useUserStore } from '../../stores/useUserStore';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
-  const [isLoading, setIsLoading] = useState(false);
   const [passwordMatch, setPasswordMatch] = useState(true);
   const { navigate } = useNavigation();
+
+  const { signup, loading } = useUserStore();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -35,15 +36,8 @@ export default function SignupPage() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!passwordMatch) return;
-    
-    setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      navigate('/');
-    }, 1500);
+    if (!passwordMatch) {return;};
+    await signup(formData);
   };
 
   const containerVariants = {
@@ -96,37 +90,20 @@ export default function SignupPage() {
               onSubmit={handleSignup}
               className="space-y-4"
             >
-              <div className="grid grid-cols-2 gap-4">
-                <motion.div
-                  whileFocus={{ scale: 1.02 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-                >
-                  <label className="text-sm font-medium mb-2 block">First Name</label>
-                  <Input
-                    type="text"
-                    name="firstName"
-                    placeholder="John"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    required
-                  />
-                </motion.div>
-
-                <motion.div
-                  whileFocus={{ scale: 1.02 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-                >
-                  <label className="text-sm font-medium mb-2 block">Last Name</label>
-                  <Input
-                    type="text"
-                    name="lastName"
-                    placeholder="Doe"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    required
-                  />
-                </motion.div>
-              </div>
+              <motion.div
+                whileFocus={{ scale: 1.02 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+              >
+                <label className="text-sm font-medium mb-2 block">Full Name</label>
+                <Input
+                  type="text"
+                  name="name"
+                  placeholder="John Doe"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                />
+              </motion.div>
 
               <motion.div
                 whileFocus={{ scale: 1.02 }}
@@ -187,8 +164,8 @@ export default function SignupPage() {
                 variants={itemVariants}
                 className="pt-2"
               >
-                <Button variant="default" size="lg" className="w-full" disabled={isLoading} type="submit">
-                  {isLoading && <Spinner data-icon="inline-start" />}
+                <Button variant="default" size="lg" className="w-full" disabled={loading} type="submit" onClick={handleSignup}>
+                  {loading && <Spinner data-icon="inline-start" />}
                   create your account
                 </Button>
               </motion.div>

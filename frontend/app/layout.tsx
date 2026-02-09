@@ -3,6 +3,7 @@ import { Toaster } from './components/ui/sooner';
 import './globals.css';
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
+import { AuthProvider } from './components/common/AuthProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -11,13 +12,14 @@ export const metadata = {
   description: 'Discover premium products curated for the modern lifestyle at Sharwings.',
 };
 
-export default function RootLayout({ children } : {children: React.ReactNode}) {
+export default async function RootLayout({ children } : {children: React.ReactNode}) {
+
   return (
     <html lang="en">
       <body className={inter.className}>
         <Navbar />
-        {children}
-        <Toaster position="top-right" richColors />
+        <AuthProvider>{children}</AuthProvider>
+        <Toaster position="top-center" richColors />
         <Footer />
       </body>
     </html>

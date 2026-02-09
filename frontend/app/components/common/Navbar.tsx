@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useNavigation } from '../hooks/useNavigation';
 import { categories } from '@/common/data';
+import { useUserStore } from '../../../stores/useUserStore';
 
 export default function Navbar({ cartCount=0 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -18,6 +19,7 @@ export default function Navbar({ cartCount=0 }) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const {navigate} = useNavigation();
+  const { user } = useUserStore();
 
   return (
     <motion.header initial={{ y: -100 }} animate={{ y: 0 }} transition={{ duration: 0.5 }} className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b">
@@ -66,6 +68,7 @@ export default function Navbar({ cartCount=0 }) {
             </Button>
             {/* <Button className="ml-2" onClick={() => navigate('/login')}>Login</Button> */}
             <button type="button" onClick={() => navigate('/login')} className="text-white bg-blue-600 box-border border border-transparent hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 shadow-xs font-medium leading-5 rounded-full text-sm px-6 py-2 focus:outline-none">Login</button>
+            {user && user.email}
           </div>
         </div>
         <AnimatePresence>

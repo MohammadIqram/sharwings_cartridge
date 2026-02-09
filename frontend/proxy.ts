@@ -28,9 +28,11 @@ export function proxy(req: NextRequest) {
   }
 
   // Auth check for protected routes
-  const token = req.cookies.get('auth_token')?.value;
+  const token = req.cookies.get('accessToken')?.value;
+  const token2 = req.cookies.get('refreshToken')?.value;
+  console.log('this is a token', token, token2);
 
-  if (!token) {
+  if (!token || !token2) {
     // Redirect to login if unauthenticated
     return NextResponse.redirect(new URL('/login', req.url));
   }

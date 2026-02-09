@@ -1,5 +1,5 @@
 {
-	"name": "sharwings_cartridge",
+	"name": "e-commerce-store",
 	"version": "1.0.0",
 	"description": "",
 	"main": "backend/server.js",
@@ -8,7 +8,6 @@
 		"server": "set NODE_ENV=development && nodemon --watch backend --ext js,mjs,cjs,json backend/server.js",
 		"start": "node backend/server.js",
 		"build": "npm install && npm install --prefix frontend && npm run build --prefix frontend",
-		"export": "next export",
 		"postinstall": "prisma generate",
 		"seed": "node prisma/seed.js"
 	},
@@ -33,7 +32,6 @@
 		"stripe": "^16.8.0"
 	},
 	"devDependencies": {
-		"@types/node": "^25.2.2",
 		"nodemon": "^3.1.4",
 		"prisma": "7.2.0"
 	}

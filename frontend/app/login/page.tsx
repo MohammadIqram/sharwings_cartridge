@@ -7,22 +7,17 @@ import { Input } from '@/components/ui/input';
 import { ChevronRight } from 'lucide-react';
 import { useNavigation } from '@/components/hooks/useNavigation';
 import { Spinner } from '@/components/ui/spinner';
+import { useUserStore } from '../../stores/useUserStore';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const { navigate } = useNavigation();
+  const { login, loading } = useUserStore();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      navigate('/');
-    }, 1500);
+    await login(email, password);
   };
 
   const containerVariants = {
@@ -106,8 +101,8 @@ export default function LoginPage() {
               </motion.div>
 
                     <motion.div variants={itemVariants} className="pt-2">
-                        <Button variant="default" size="lg" className="w-full" disabled={isLoading} type="submit">
-                        {isLoading && <Spinner data-icon="inline-start" />}
+                        <Button variant="default" size="lg" className="w-full" disabled={loading} type="submit" onClick={handleLogin}>
+                        {loading && <Spinner data-icon="inline-start" />}
                         Login
                         </Button>
                     </motion.div>
