@@ -18,6 +18,7 @@ export function proxy(req: NextRequest) {
   // Skip static assets, API routes, and public pages
   if (
     pathname.startsWith('/_next') || // Next.js JS/CSS
+    pathname.startsWith('/_next/image') ||
     pathname.startsWith('/api') ||   // API routes
     PUBLIC_PATHS.includes(pathname) || // public pages
     pathname === '/favicon.ico'
