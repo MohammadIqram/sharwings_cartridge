@@ -5,31 +5,30 @@ import { ArrowRight, CheckCircle, HandHeart } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Confetti from "react-confetti";
-import { useSearchParams } from "next/navigation";
 
 const PurchaseSuccessPage = () => {
   const [isProcessing, setIsProcessing] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
 
-  const searchParams = useSearchParams();
+useEffect(() => {
+  // Only runs on client
+  const searchParams = new URLSearchParams(window.location.search);
 
-  useEffect(() => {
-    const handleRazorpaySuccess = async (
-      paymentId: string,
-      orderId: string,
-      signature: string
-    ) => {
+  const paymentId = searchParams.get("payment_id");
+  const orderIdParam = searchParams.get("order_id");
+  const signature = searchParams.get("token");
+
+  setOrderId(orderIdParam);
+
+  if (paymentId && orderIdParam && signature) {
+    const handleRazorpaySuccess = async () => {
       try {
         await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/payments/razorpay-success`, {
-          method: 'POST',
-          credentials: 'include',
+          method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            paymentId,
-            orderId,
-            signature,
-          }),
+          body: JSON.stringify({ paymentId, orderId: orderIdParam, signature }),
         });
       } catch (err) {
         console.error(err);
@@ -39,19 +38,12 @@ const PurchaseSuccessPage = () => {
       }
     };
 
-    const paymentId = searchParams.get("payment_id");
-    const orderIdParam = searchParams.get("order_id");
-    const signature = searchParams.get("token");
-
-    setOrderId(orderIdParam);
-
-    if (paymentId && orderIdParam && signature) {
-      handleRazorpaySuccess(paymentId, orderIdParam, signature);
-    } else {
-      setIsProcessing(false);
-      setError("No Razorpay payment details found in the URL");
-    }
-  }, [searchParams]);
+    handleRazorpaySuccess();
+  } else {
+    setIsProcessing(false);
+    setError("No Razorpay payment details found in the URL");
+  }
+}, []); // empty deps → runs once on client
 
   if (isProcessing) return <p className="text-center mt-20 text-blue-700">Processing...</p>;
   if (error) return <p className="text-center mt-20 text-red-600">Error: {error}</p>;
