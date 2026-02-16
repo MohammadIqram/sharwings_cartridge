@@ -3,7 +3,7 @@ import { Category, Product } from "./types";
 export const categories: Category[] = [
   { id: 'fans', name: 'Fans', slug: 'fans', description: 'Latest gadgets and devices', image: '/images/fans.jpeg' },
   { id: 'switchesandsockets', name: 'Switches and Sockets', slug: 'switches-and-sockets', description: 'Trendy clothing and accessories', image: '/images/switches.jpeg' },
-  { id: 'ledlights', name: 'Led Lights', slug: 'led-lights', description: 'Everything for your home', image: '/images/bulbs.jpeg' },
+  { id: 'ledlights', name: 'Led Lights', slug: 'ledlights', description: 'Everything for your home', image: '/images/bulbs.jpeg' },
   { id: 'cablesandwires', name: 'Cables and Wires', slug: 'cables-and-wires', description: 'Equipment and gear for active lifestyles', image: '/images/wires.jpeg' },
 ];
 

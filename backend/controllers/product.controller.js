@@ -30,6 +30,7 @@ export const getFeaturedProducts = async (req, res) => {
 		const featuredProducts = await prisma.product.findMany({
 			where: { isFeatured: true }
 		});
+		console.log('these are the featured products from databse: ', featuredProducts);
 
 		if (!featuredProducts) {
 			return res.status(404).json({ message: "No featured products found" });
@@ -43,8 +44,8 @@ export const getFeaturedProducts = async (req, res) => {
 				console.log("Redis set cache error in getFeaturedProducts", error.message);
 			}
 		}
-
-		res.json(featuredProducts);
+		console.log("Featured products fetched from database", featuredProducts);
+		return res.status(200).json(featuredProducts);
 	} catch (error) {
 		console.log("Error in getFeaturedProducts controller", error.message);
 		res.status(500).json({ message: "Server error", error: error.message });
@@ -125,9 +126,10 @@ export const getRecommendedProducts = async (req, res) => {
 };
 
 export const getProductsByCategory = async (req, res) => {
-	const { category } = req.params;
+	const { cid } = req.params;
+	console.log("Category ID received in controller:", cid);
 	try {
-		const generalProducts = await prisma.product.findMany({ where: { category } });
+		const generalProducts = await prisma.product.findMany({ where: { category: cid } });
 		const products = generalProducts.filter((product) => !product.closeOut);
 		res.json({ success: true, products });
 	} catch (error) {

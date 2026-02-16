@@ -19,7 +19,17 @@ export default function Navbar({ cartCount=0 }) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const {navigate} = useNavigation();
-  const { user } = useUserStore();
+  const { user, logout } = useUserStore();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <motion.header initial={{ y: -100 }} animate={{ y: 0 }} transition={{ duration: 0.5 }} className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b">
@@ -67,8 +77,23 @@ export default function Navbar({ cartCount=0 }) {
               {cartCount > 0 && <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">{cartCount}</motion.span>}
             </Button>
             {/* <Button className="ml-2" onClick={() => navigate('/login')}>Login</Button> */}
-            <button type="button" onClick={() => navigate('/login')} className="text-white bg-blue-600 box-border border border-transparent hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 shadow-xs font-medium leading-5 rounded-full text-sm px-6 py-2 focus:outline-none">Login</button>
-            {user && user.email}
+            {
+              !user ? (
+                <button type="button" onClick={() => navigate('/login')} className="text-white bg-blue-600 box-border border border-transparent hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 shadow-xs font-medium leading-5 rounded-full text-sm px-6 py-2 focus:outline-none">Login</button>
+              ) : (
+                <div className="relative" onMouseEnter={() => setMenuOpen(true)} onMouseLeave={() => setMenuOpen(false)}>
+                  <div className="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium cursor-pointer">
+                    {user?.email?.split('@')[0][0].toUpperCase() || 'U'}
+                  </div>
+                  <div className={`cursor-pointer absolute right-0 mt-1 top-6 w-48 bg-white border rounded-md shadow-lg transition-opacity ${menuOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}>
+                    <div className="px-3 py-2 text-sm text-muted-foreground border-b">{user.email}</div>
+                    <button onClick={() => { setMenuOpen(false); navigate('/dashboard'); }} className="cursor-pointer w-full text-left px-3 py-2 hover:bg-slate-50">Dashboard</button>
+                    <button onClick={() => { setMenuOpen(false); navigate('/profile'); }} className="cursor-pointer w-full text-left px-3 py-2 hover:bg-slate-50">Profile</button>
+                    <button onClick={() => { setMenuOpen(false); handleLogout(); }} className="cursor-pointer w-full text-left px-3 py-2 text-red-600 hover:bg-slate-50">Logout</button>
+                  </div>
+                </div>
+              )
+            }
           </div>
         </div>
         <AnimatePresence>

@@ -3,14 +3,16 @@ import prisma from "../lib/prisma.js";
 
 export const protectRoute = async (req, res, next) => {
 	try {
-		const accessToken = req.cookies.accessToken;
-
+		console.log('alskdfjasdklf', req.cookies);
+		const accessToken = req.cookies.session;
+		console.log('this is undefined: ', accessToken);
 		if (!accessToken) {
 			return res.status(401).json({ message: "Unauthorized - No access token provided" });
 		}
 
 		try {
 			const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+			console.log('decoded: ', decoded);
 			const user = await prisma.user.findUnique({
 				where: { id: decoded.userId },
 				select: { id: true, name: true, email: true, role: true, cartItems: true, address: true } // Exclude password

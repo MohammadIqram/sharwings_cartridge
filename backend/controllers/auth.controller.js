@@ -15,9 +15,17 @@ const generateTokens = (userId) => {
 	return { accessToken, refreshToken };
 };
 
-const storeRefreshToken = async (userId, refreshToken) => {
+const generateSingleToken = (userId) => {
+	const token = jwt.sign({userId}, process.env.ACCESS_TOKEN_SECRET, {
+		expiresIn: "7d",
+	});
+
+	return { token };
+}
+
+const tokenStorage = async (userId, session) => {
 	try {
-		await redis.set(`refresh_token:${userId}`, refreshToken, "EX", 7 * 24 * 60 * 60); // 7days
+		await redis.set(`session:${userId}`, session, "EX", 7 * 24 * 60 * 60); // 7days
 	} catch (error) {
 		console.log("Error storing refresh token in Redis:", error.message);
 	}
@@ -37,6 +45,15 @@ const setCookies = (res, accessToken, refreshToken) => {
 		maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 	});
 };
+
+const setSingleTokenCookie = (res, token) => {
+	res.cookie("session", token, {
+		httpOnly: true, // prevent XSS attacks, cross site scripting attack
+		secure: process.env.NODE_ENV === "production",
+		sameSite: "strict", // prevents CSRF attack, cross-site request forgery attack
+		maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+	});
+}
 
 export const signup = async (req, res) => {
 	const { email, password, name } = req.body;
@@ -60,10 +77,9 @@ export const signup = async (req, res) => {
 		});
 
 		// authenticate
-		const { accessToken, refreshToken } = generateTokens(user.id);
-		await storeRefreshToken(user.id, refreshToken);
-
-		setCookies(res, accessToken, refreshToken);
+		const { token } = generateSingleToken(user.id);
+		await tokenStorage(user.id, token);
+		setSingleTokenCookie(res, token);
 
 		res.status(201).json({
 			_id: user.id,
@@ -84,9 +100,10 @@ export const login = async (req, res) => {
 		console.log('this is a db user: ', user);
 
 		if (user && (await bcrypt.compare(password, user.password))) {
-			const { accessToken, refreshToken } = generateTokens(user.id);
-			await storeRefreshToken(user.id, refreshToken);
-			setCookies(res, accessToken, refreshToken);
+			// authenticate
+			const { token } = generateSingleToken(user.id);
+			await tokenStorage(user.id, token);
+			setSingleTokenCookie(res, token);
 
 			res.json({
 				_id: user.id,
@@ -105,14 +122,8 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
 	try {
-		const refreshToken = req.cookies.refreshToken;
-		if (refreshToken) {
-			const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-			await redis.del(`refresh_token:${decoded.userId}`);
-		}
-
-		res.clearCookie("accessToken");
-		res.clearCookie("refreshToken");
+		await redis.del(`session:${req?.user?.id}`);
+		res.clearCookie("session");
 		res.json({ message: "Logged out successfully" });
 	} catch (error) {
 		console.log("Error in logout controller", error.message);

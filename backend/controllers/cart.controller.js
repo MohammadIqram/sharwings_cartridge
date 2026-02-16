@@ -17,7 +17,7 @@ export const getCartProducts = async (req, res) => {
 			const item = cartItems.find((cartItem) => cartItem.productId === product.id);
 			return { ...product, quantity: item.quantity };
 		});
-
+		console.log("Cart data:", cartData);
 		res.json(cartData);
 	} catch (error) {
 		console.log("Error in getCartProducts controller", error.message);
@@ -195,7 +195,7 @@ export const addCustomerBillingAddress = async (req, res) => {
 
 		return res.status(200).json({
 			success: true,
-			msg: "billing address udpated successfully."
+			message: "billing address udpated successfully."
 		})
 	} catch (error) {
 		console.log("error in updating or adding billing address", error.message);

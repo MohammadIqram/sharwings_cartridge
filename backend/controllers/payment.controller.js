@@ -241,7 +241,9 @@ async function createNewCoupon(userId) {
 
 export const createCheckoutSessionRazorpay = async (req, res) => {
 	try {
-		const { products } = req.body;
+		const { products, address } = req.body;
+		console.log(req.body);
+		console.log('payment products: ', products);
 
 		if (!Array.isArray(products) || products.length === 0) {
 			return res.status(400).json({ error: "Invalid or empty products array" });
@@ -249,7 +251,7 @@ export const createCheckoutSessionRazorpay = async (req, res) => {
 
 		// Checking req.user.address. As address is Json, accessing it might require cast or check.
 		// req.user from Prisma has generic Json object.
-		if (!req.user.address || !req.user.address.name) {
+		if (!address) {
 			return res.status(400).json({ error: "User address is required for checkout" });
 		}
 
@@ -298,6 +300,23 @@ export const createCheckoutSessionRazorpay = async (req, res) => {
 		});
 
 		const productName = products.map(p => p.name).join(", ");
+
+		// Create Order and OrderItems
+		const newOrder = await prisma.order.create({
+			data: {
+				userId: req.user.id,
+				totalAmount: totalAmount,
+				mode: "online",
+				address: address,
+				orderItems: {
+					create: products.map(product => ({
+						productId: product._id || product.id,
+						quantity: Number(product?.quantity ?? 1),
+						price: resolveProductPrice(product) // using salePrice as price
+					}))
+				}
+			}
+		});
 
 		// Empty cart
 		await prisma.cartItem.deleteMany({ where: { userId: req.user.id } });

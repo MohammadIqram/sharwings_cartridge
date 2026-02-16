@@ -11,10 +11,11 @@ import { Category, Product } from './common/types';
 import { useNavigation } from './components/hooks/useNavigation';
 import ProductCard from './components/common/product/ProductCard';
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 export default function HomePage() {
   const gradients : Record<string, string> = { 'electronics': 'from-blue-600 to-indigo-700', 'fashion': 'from-pink-500 to-rose-600', 'home-living': 'from-amber-500 to-orange-600', 'sports-fitness': 'from-green-500 to-emerald-600' };
-
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const { navigate } = useNavigation();
 
   const onAddToCart = (product: Product) => {
@@ -23,6 +24,22 @@ export default function HomePage() {
 
   // mock loaing state for featured products
   const loading = false;
+
+  // fetch featured products from backend
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products/featured`);
+        const data = await response.json();
+        console.log('this is the data: ', data);
+        setFeaturedProducts(data);
+      } catch (error: any) {
+        console.log('error fetching featured products: ', error);
+      }
+    }
+
+    fetchFeaturedProducts();
+  }, []);
 
   return (
     <div>
@@ -138,7 +155,7 @@ export default function HomePage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              {featured.map(p => <ProductCard key={p.id} product={p} onAddToCart={onAddToCart} navigate={navigate} />)}
+              {featuredProducts.map(p => <ProductCard key={p.id} product={p} onAddToCart={onAddToCart} navigate={navigate} />)}
             </div>
           )}
           <div className="mt-8 text-center md:hidden">

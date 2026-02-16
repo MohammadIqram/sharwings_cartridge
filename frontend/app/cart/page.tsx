@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,33 +14,8 @@ import {
   MapPin, DollarSign
 } from 'lucide-react';
 import { useNavigation } from '@/components/hooks/useNavigation';
-
-const cart = [
-  {
-    id: "geyser-001",
-    name: "Instant Water Geyser 3L",
-    brand: "AquaHeat",
-    price: 89.99,
-    quantity: 1,
-    image: "/images/geazer.jpeg",
-  },
-  {
-    id: "bulb-002",
-    name: "LED AC Bulb 12W",
-    brand: "BrightLux",
-    price: 6.5,
-    quantity: 4,
-    image: "/images/bulbs.jpeg",
-  },
-  {
-    id: "switch-003",
-    name: "Modular Switch Board (6+1)",
-    brand: "VoltSafe",
-    price: 24.99,
-    quantity: 2,
-    image: "/images/switches.jpeg",
-  },
-];
+import { toast } from 'sonner';
+import { useUserStore } from '../../stores/useUserStore';
 
 interface AddressProp {
  fullName: string;
@@ -51,10 +26,36 @@ interface AddressProp {
  zipCode: string;
 }
 
+const loadRazorpayScript = () =>
+	new Promise((resolve, reject) => {
+		if ((window as any).Razorpay) {
+			resolve(true);
+			return;
+		}
+
+		const existingScript = document.getElementById("razorpay-checkout-js");
+		if (existingScript) {
+			existingScript.addEventListener("load", () => resolve(true));
+			existingScript.addEventListener("error", () => reject(new Error("Failed to load Razorpay")));
+			return;
+		}
+
+		const script = document.createElement("script");
+		script.id = "razorpay-checkout-js";
+		script.src = "https://checkout.razorpay.com/v1/checkout.js";
+		script.async = true;
+		script.onload = () => resolve(true);
+		script.onerror = () => reject(new Error("Failed to load Razorpay"));
+		document.body.appendChild(script);
+});
+
 export default function CartPage () {
   const { navigate } = useNavigation();
-  const [address, setAddress] = useState<AddressProp | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [cart, setCart] = useState<any[]>([]);
+  const user = useUserStore(state => state.user);
+  const addBillingAddress = useUserStore(state => state.addBillingAddress);
+  const address = user && (user as any).address ? (user as any).address as AddressProp : null;
+  const [paymentMethod, setPaymentMethod] = useState('online');
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [addressForm, setAddressForm] = useState<AddressProp>({
     fullName: '',
@@ -64,12 +65,38 @@ export default function CartPage () {
     state: '',
     zipCode: '',
   });
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleAddressSubmit = () => {
+  // get cart
+  useEffect(() => {
+    const getUserCart = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/cart`, {
+          credentials: 'include',
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch cart');
+        }
+        const data = await response.json();
+        setCart(data);
+      } catch (error) {
+        console.error('Error fetching cart:', error);
+      }
+    }
+
+    getUserCart();
+  }, []);
+
+  const handleAddressSubmit = async () => {
     if (addressForm.fullName && addressForm.phone && addressForm.street && addressForm.city && addressForm.state && addressForm.zipCode) {
-      setAddress(addressForm);
-      setShowAddressModal(false);
-      setAddressForm({ fullName: '', phone: '', street: '', city: '', state: '', zipCode: '' });
+      try {
+        await addBillingAddress(addressForm);
+        setShowAddressModal(false);
+        setAddressForm({ fullName: '', phone: '', street: '', city: '', state: '', zipCode: '' });
+        return;
+      } catch (error: any) {
+        toast.error(error?.message || 'An error occured while adding address. Please try again.');
+      }
     }
   };
 
@@ -77,6 +104,105 @@ export default function CartPage () {
     const { name, value } = e.target;
     setAddressForm(prev => ({ ...prev, [name]: value }));
   };
+
+	const handlePayment = async () => {
+		try {
+			if (isProcessing) return;
+			if (!user) {
+				toast.error("Please log in to continue.");
+				return;
+			}
+			if (!user.address) {
+				toast.error("Please add a delivery address before checkout.");
+				return;
+			}
+			if (!cart || cart.length === 0) {
+				toast.error("Your cart is empty.");
+				return;
+			}
+
+			setIsProcessing(true);
+			let res = null;
+			if (paymentMethod === "cod") {
+        res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/payments/cash-on-delivery`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            products: cart,
+            couponCode: null,
+            address: user.address,
+          }),
+        });
+        if (res.ok) {
+          window.location.href = "/orders";
+        }
+				return;
+			}
+			else {
+				try {
+					await loadRazorpayScript();
+				} catch (loadError: any) {
+					toast.error(loadError.message || "Failed to load Razorpay");
+					return;
+				}
+        console.log('laksdfjklsdfjsdklf', cart);
+        res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/payments/create-checkout-session-razorpay`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            products: cart,
+            couponCode: null,
+            address: user.address,
+          }),
+        });
+			}
+      const data = await res.json();
+			const { id, totalAmount, keyId } = data || {};
+			const razorpayKey =
+				keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+
+			if (!razorpayKey) {
+				toast.error("Razorpay key is not configured.");
+				return;
+			}
+	
+			// Razorpay options
+			const options = {
+				key: razorpayKey,
+				amount: totalAmount * 100, // Amount in paise
+				currency: "INR",
+				name: "Sharwings",
+				description: "Purchase Description",
+				order_id: id,
+				handler: function (response: any) {
+					window.location.href = `/purchase-success?payment_id=${response.razorpay_payment_id}&order_id=${response.razorpay_order_id}&token=${response.razorpay_signature}`;
+				},
+				prefill: {
+					name: user?.name,
+					email: user?.email,
+				},
+				theme: {
+					color: "#3399cc",
+				},
+			};
+	
+			// Initialize Razorpay
+			const razorpay = new (window as any).Razorpay(options);
+			razorpay.open();
+	
+			razorpay.on("payment.failed", function (response: any) {
+				console.error("Payment failed:", response.error);
+				window.location.href = "/purchase-failed";
+			});
+		} catch (error: any) {
+      toast.error("An error occurred while initiating payment. Please try again.", error.message);
+			console.error("Error initiating Razorpay payment:", error);
+		} finally {
+			setIsProcessing(false);
+		}
+	};
 
   if (cart.length === 0) {
     return (
@@ -213,7 +339,9 @@ export default function CartPage () {
               transition={{ duration: 0.5, delay: 0.3 }}
             >
               <Card className={`bg-white rounded-lg shadow-md transition-shadow cursor-pointer ${paymentMethod === 'cod' ? 'shadow-lg ring-1 ring-blue-200' : ''}`}
-                onClick={() => setPaymentMethod('cod')}
+                onClick={() => {
+                  setPaymentMethod(prev => prev === 'cod' ? 'online' : 'cod');
+                }}
               >
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
@@ -440,9 +568,9 @@ export default function CartPage () {
                     >
                       <Button 
                         className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700 text-white" 
-                        onClick={() => navigate('/checkout')}
+                        onClick={handlePayment}
                       >
-                        Proceed to Checkout 
+                        { isProcessing ? '...processing' : 'Proceed to Checkout' }
                         <motion.span
                           animate={{ x: [0, 3, 0] }}
                           transition={{ duration: 1.5, repeat: Infinity }}
