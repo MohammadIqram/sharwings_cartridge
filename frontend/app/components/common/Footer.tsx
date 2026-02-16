@@ -25,7 +25,6 @@ export default function Footer() {
             <ul className="space-y-2.5 text-sm text-slate-400">
               <li><button onClick={() => navigate('/')} className="hover:text-white transition-colors">Home</button></li>
               <li><button onClick={() => navigate('/category/electronics')} className="hover:text-white transition-colors">Electronics</button></li>
-              <li><button onClick={() => navigate('/category/fashion')} className="hover:text-white transition-colors">Fashion</button></li>
               <li><button onClick={() => navigate('/category/home-living')} className="hover:text-white transition-colors">Home & Living</button></li>
             </ul>
           </div>

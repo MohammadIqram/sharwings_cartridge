@@ -50,7 +50,8 @@ const setSingleTokenCookie = (res, token) => {
 	res.cookie("session", token, {
 		httpOnly: true, // prevent XSS attacks, cross site scripting attack
 		secure: process.env.NODE_ENV === "production",
-		sameSite: "strict", // prevents CSRF attack, cross-site request forgery attack
+		sameSite: "none", // allows cross-site requests
+		domain: process.env.COOKIE_DOMAIN, // read from env
 		maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 	});
 }

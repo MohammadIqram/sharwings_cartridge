@@ -64,7 +64,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-24 md:py-36 relative z-10">
           <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-2xl">
             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
-              <Badge className="mb-6 bg-white/10 text-white hover:bg-white/20 border-white/20 px-4 py-1.5"><Sparkles className="w-3.5 h-3.5 mr-1.5" /> Summer Collection 2025</Badge>
+              {/* <Badge className="mb-6 bg-white/10 text-white hover:bg-white/20 border-white/20 px-4 py-1.5"><Sparkles className="w-3.5 h-3.5 mr-1.5" /> Summer Collection 2025</Badge> */}
             </motion.div>
             <h1 className="text-5xl md:text-7xl font-black mb-6 leading-[1.1] tracking-tight">Elevate Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Home</span></h1>
             <p className="text-lg md:text-xl text-white/60 mb-10 max-w-lg leading-relaxed">Smart & Premium electrical solutions that power your space—engineered for safety, efficiency, and long-term reliability.</p>
@@ -80,7 +80,7 @@ export default function HomePage() {
       <section className="border-b">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 divide-x">
-            {[{ icon: Truck, title: 'Free Shipping', desc: 'On orders over $50' }, { icon: Shield, title: 'Secure Payment', desc: '100% protected' }, { icon: RotateCcw, title: 'Easy Returns', desc: '30-day guarantee' }, { icon: Package, title: 'Fast Delivery', desc: '2-5 business days' }].map((b, i) => (
+            {[{ icon: Truck, title: 'Free Shipping', desc: 'On all orders' }, { icon: Shield, title: 'Secure Payment', desc: '100% protected' }, { icon: RotateCcw, title: 'Easy Returns', desc: '30-day guarantee' }, { icon: Package, title: 'Fast Delivery', desc: '2-5 business days' }].map((b, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="flex items-center gap-3 py-5 px-4">
                 <b.icon className="w-5 h-5 text-muted-foreground shrink-0" />
                 <div><p className="text-sm font-semibold">{b.title}</p><p className="text-xs text-muted-foreground">{b.desc}</p></div>
