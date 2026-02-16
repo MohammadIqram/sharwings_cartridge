@@ -88,6 +88,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       if (!res.ok) throw new Error(data?.message);
 
       set({ user: data, loading: false });
+      window.location.href = "/";
     } catch (error: any) {
       set({ loading: false });
       toast.error(error.message || "An error occurred");
@@ -101,6 +102,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
         credentials: "include",
       });
       set({ user: null });
+      window.location.href = "/login";
     } catch (error: any) {
       toast.error(error.message || "An error occurred during logout");
     }
