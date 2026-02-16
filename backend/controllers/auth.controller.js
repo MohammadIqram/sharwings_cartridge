@@ -124,7 +124,13 @@ export const login = async (req, res) => {
 export const logout = async (req, res) => {
 	try {
 		await redis.del(`session:${req?.user?.id}`);
-		res.clearCookie("session");
+		res.clearCookie("session", {
+			httpOnly: true, // prevent XSS attacks, cross site scripting attack
+			secure: process.env.NODE_ENV === "production",
+			sameSite: "none", // allows cross-site requests
+			domain: process.env.COOKIE_DOMAIN, // read from env
+			maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+		});
 		res.json({ message: "Logged out successfully" });
 	} catch (error) {
 		console.log("Error in logout controller", error.message);
