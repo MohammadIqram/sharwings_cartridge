@@ -2,23 +2,24 @@ import prisma from "../lib/prisma.js";
 
 export const getCartProducts = async (req, res) => {
 	try {
-		// req.user.cartItems is populated by auth middleware
-		// But we need full product details.
+		const userId = req.user.id; // assuming auth middleware sets req.user
 
-		const cartItems = req.user.cartItems;
-		const productIds = cartItems.map(item => item.productId);
-
-		const products = await prisma.product.findMany({
-			where: { id: { in: productIds } }
+		// Fetch cart items for the logged-in user and include product details
+		const cartItems = await prisma.cartItem.findMany({
+			where: { userId },
+			include: {
+				product: true
+			}
 		});
 
-		// add quantity for each product
-		const cartData = products.map((product) => {
-			const item = cartItems.find((cartItem) => cartItem.productId === product.id);
-			return { ...product, quantity: item.quantity };
-		});
-		console.log("Cart data:", cartData);
-		res.json(cartData);
+		// Format response to merge product data with quantity
+		const cartData = cartItems.map((item) => ({
+			...item.product,
+			quantity: item.quantity,
+			cartItemId: item.id // optional but useful
+		}));
+
+		res.status(200).json(cartData);
 	} catch (error) {
 		console.log("Error in getCartProducts controller", error.message);
 		res.status(500).json({ message: "Server error", error: error.message });
@@ -30,6 +31,7 @@ export const addToCart = async (req, res) => {
 		const { productId, quantity, _id, id } = req.body;
 		const resolvedProductId = productId || _id || id;
 		const userId = req.user.id;
+		console.log('klsdfjskldfjsdklfjsdklf', userId);
 
 		if (!resolvedProductId) {
 			return res.status(400).json({ message: "Product ID is required" });
@@ -109,6 +111,7 @@ export const addToCart = async (req, res) => {
 		const updatedCartItems = await prisma.cartItem.findMany({ where: { userId } });
 		res.json(updatedCartItems);
 	} catch (error) {
+		console.log(error);
 		console.log("Error in addToCart controller", error.message);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
