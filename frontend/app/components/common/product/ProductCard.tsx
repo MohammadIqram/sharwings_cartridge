@@ -33,8 +33,8 @@ export default function ProductCard ({ product, onAddToCart, navigate } : { prod
             <span className="text-xs text-muted-foreground ml-1">{product.reviews} / 5.0</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-bold text-lg flex items-center">₹{product.price}</span>
-            {product.salePrice && <span className="text-sm text-muted-foreground line-through">₹{product.salePrice}</span>}
+            <span className="font-bold text-lg flex items-center">₹{product.salePrice}</span>
+            {product.salePrice && <span className="text-sm text-muted-foreground line-through">₹{product.price}</span>}
           </div>
           <div className="mt-4">
             <Button variant={"default"} className="w-full cursor-pointer" size="lg" onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}>
