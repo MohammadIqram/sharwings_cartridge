@@ -87,7 +87,11 @@ export default function Navbar({ cartCount=0 }) {
                   </div>
                   <div className={`cursor-pointer absolute right-0 mt-1 top-6 w-48 bg-white border rounded-md shadow-lg transition-opacity ${menuOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}>
                     <div className="px-3 py-2 text-sm text-muted-foreground border-b">{user.email}</div>
-                    <button onClick={() => { setMenuOpen(false); navigate('/dashboard'); }} className="cursor-pointer w-full text-left px-3 py-2 hover:bg-slate-50">Dashboard</button>
+                    {
+                      user.role === 'admin' && (
+                        <button onClick={() => { setMenuOpen(false); navigate('/dashboard'); }} className="cursor-pointer w-full text-left px-3 py-2 hover:bg-slate-50">Admin Dashboard</button>
+                      )
+                    }
                     <button onClick={() => { setMenuOpen(false); navigate('/profile'); }} className="cursor-pointer w-full text-left px-3 py-2 hover:bg-slate-50">Profile</button>
                     <button onClick={() => { setMenuOpen(false); handleLogout(); }} className="cursor-pointer w-full text-left px-3 py-2 text-red-600 hover:bg-slate-50">Logout</button>
                   </div>

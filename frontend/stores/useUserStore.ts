@@ -10,6 +10,7 @@ type User = {
   name?: string;
   email?: string;
   address?: any;
+  role?: string;
 };
 
 type SignupPayload = {
@@ -53,7 +54,6 @@ export const useUserStore = create<UserStore>((set, get) => ({
     }
 
     try {
-      console.log('alsdkfjasdklf', process.env.NEXT_PUBLIC_BACKEND_URL);
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/signup`, {
         method: "POST",
         credentials: "include",
@@ -66,6 +66,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       if (!res.ok) throw new Error(data?.message);
 
       set({ user: data, loading: false });
+      window.location.href = "/";
     } catch (error: any) {
       set({ loading: false });
       toast.error(error.message || "An error occurred");

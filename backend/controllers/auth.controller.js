@@ -58,7 +58,6 @@ const setSingleTokenCookie = (res, token) => {
 
 export const signup = async (req, res) => {
 	const { email, password, name } = req.body;
-	console.log('klasdjfakl;sdfja', req.body);
 	try {
 		const userExists = await prisma.user.findUnique({ where: { email } });
 
@@ -82,10 +81,10 @@ export const signup = async (req, res) => {
 			email: user.email,
 			name: user.name,
 			role: user.role,
+			address: user.address,
 		}
 
 		// authenticate
-		console.log('this is a user', user);
 		const { token } = generateSingleToken(user.id);
 		await tokenStorage(user.id, sessionData);
 		setSingleTokenCookie(res, token);
@@ -125,6 +124,7 @@ export const login = async (req, res) => {
 				name: user.name,
 				email: user.email,
 				role: user.role,
+				address: user.address,
 			});
 		} else {
 			res.status(400).json({ message: "Invalid email or password" });
