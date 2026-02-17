@@ -4,6 +4,7 @@ import { redis } from "../lib/redis.js";
 export const protectRoute = async (req, res, next) => {
 	try {
 		const accessToken = req.cookies.session;
+		console.log("Access token from cookie:", accessToken);
 		if (!accessToken) {
 			return res.status(401).json({ message: "Unauthorized - No access token provided" });
 		}
