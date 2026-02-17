@@ -25,7 +25,7 @@ const generateSingleToken = (userId) => {
 
 const tokenStorage = async (userId, session) => {
 	try {
-		await redis.set(`session:${userId}`, session, "EX", 7 * 24 * 60 * 60); // 7days
+		await redis.set(`session:${userId}`, JSON.stringify(session), "EX", 7 * 24 * 60 * 60); // 7days
 	} catch (error) {
 		console.log("Error storing refresh token in Redis:", error.message);
 	}
@@ -35,7 +35,7 @@ const setCookies = (res, accessToken, refreshToken) => {
 	res.cookie("accessToken", accessToken, {
 		httpOnly: true, // prevent XSS attacks, cross site scripting attack
 		secure: process.env.NODE_ENV === "production",
-		sameSite: "strict", // prevents CSRF attack, cross-site request forgery attack
+		sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax", // prevents CSRF attack, cross-site request forgery attack
 		maxAge: 15 * 60 * 1000, // 15 minutes
 	});
 	res.cookie("refreshToken", refreshToken, {
@@ -50,7 +50,7 @@ const setSingleTokenCookie = (res, token) => {
 	res.cookie("session", token, {
 		httpOnly: true, // prevent XSS attacks, cross site scripting attack
 		secure: process.env.NODE_ENV === "production",
-		sameSite: "none", // allows cross-site requests
+		sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
 		domain: process.env.COOKIE_DOMAIN, // read from env
 		maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 	});
@@ -77,9 +77,17 @@ export const signup = async (req, res) => {
 			}
 		});
 
+		const sessionData = {
+			id: user.id,
+			email: user.email,
+			name: user.name,
+			role: user.role,
+		}
+
 		// authenticate
+		console.log('this is a user', user);
 		const { token } = generateSingleToken(user.id);
-		await tokenStorage(user.id, token);
+		await tokenStorage(user.id, sessionData);
 		setSingleTokenCookie(res, token);
 
 		res.status(201).json({
@@ -103,7 +111,13 @@ export const login = async (req, res) => {
 		if (user && (await bcrypt.compare(password, user.password))) {
 			// authenticate
 			const { token } = generateSingleToken(user.id);
-			await tokenStorage(user.id, token);
+			const sessionData = {
+				id: user.id,
+				email: user.email,
+				name: user.name,
+				role: user.role,
+			}
+			await tokenStorage(user.id, sessionData);
 			setSingleTokenCookie(res, token);
 
 			res.json({
@@ -123,7 +137,15 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
 	try {
-		await redis.del(`session:${req?.user?.id}`);
+		const accessToken = req.cookies?.session;
+		if (!accessToken) {
+			return res.status(400).json({message: "No access token provided. User may already be logged out."});
+		}
+		const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+		if (!decoded || !decoded.userId) {
+			return res.status(401).json({ message: "Unauthorized - Invalid access token" });
+		}
+		await redis.del(`session:${decoded.userId}`);
 		res.clearCookie("session", {
 			httpOnly: true, // prevent XSS attacks, cross site scripting attack
 			secure: process.env.NODE_ENV === "production",

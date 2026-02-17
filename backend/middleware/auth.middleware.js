@@ -1,28 +1,22 @@
 import jwt from "jsonwebtoken";
-import prisma from "../lib/prisma.js";
+import { redis } from "../lib/redis.js";
 
 export const protectRoute = async (req, res, next) => {
 	try {
-		console.log('alskdfjasdklf', req.cookies);
 		const accessToken = req.cookies.session;
-		console.log('this is undefined: ', accessToken);
 		if (!accessToken) {
 			return res.status(401).json({ message: "Unauthorized - No access token provided" });
 		}
 
 		try {
 			const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-			console.log('decoded: ', decoded);
-			const user = await prisma.user.findUnique({
-				where: { id: decoded.userId },
-				select: { id: true, name: true, email: true, role: true, cartItems: true, address: true } // Exclude password
-			});
+			const user = await redis.get(`session:${decoded.userId}`);
 
 			if (!user) {
 				return res.status(401).json({ message: "User not found" });
 			}
 
-			req.user = user;
+			req.user = JSON.parse(user);
 
 			next();
 		} catch (error) {
