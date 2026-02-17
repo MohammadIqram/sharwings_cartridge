@@ -32,8 +32,8 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">Customer Service</h4>
             <ul className="space-y-2.5 text-sm text-slate-400">
               <li><span className="hover:text-white transition-colors cursor-pointer">Contact Us</span></li>
-              <li><span className="hover:text-white transition-colors cursor-pointer">Shipping Policy</span></li>
-              <li><span className="hover:text-white transition-colors cursor-pointer">Returns & Exchanges</span></li>
+              <li><span className="hover:text-white transition-colors cursor-pointer" onClick={() => navigate("/shipping-policy")}>Shipping Policy</span></li>
+              <li><span className="hover:text-white transition-colors cursor-pointer" onClick={() => navigate("/return-policy")}>Returns & Exchanges</span></li>
               <li><span className="hover:text-white transition-colors cursor-pointer">FAQ</span></li>
             </ul>
           </div>
@@ -51,8 +51,8 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-400">
           <p>© 2026 Sharwings. All rights reserved.</p>
           <div className="flex items-center gap-4">
-            <span className="hover:text-white cursor-pointer">Privacy Policy</span>
-            <span className="hover:text-white cursor-pointer">Terms of Service</span>
+            <span className="hover:text-white cursor-pointer" onClick={() => navigate("/privacy-policy")}>Privacy Policy</span>
+            <span className="hover:text-white cursor-pointer" onClick={() => navigate("/terms-and-conditions")}>Terms of Service</span>
           </div>
         </div>
       </div>
