@@ -229,7 +229,7 @@ export default function CartPage () {
     );
   }
 
-  const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const cartTotal = cart.reduce((total, item) => total + (item.salePrice * item.quantity), 0);
   const shipping = cartTotal > 50 ? 0 : 10;
 
   const containerVariants = {
@@ -356,7 +356,7 @@ export default function CartPage () {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-bold flex items-center gap-2 mb-2">
-                        <DollarSign className="w-5 h-5 text-green-600" />
+                        ₹
                         Cash On Delivery
                       </h3>
                       <motion.p
@@ -468,7 +468,8 @@ export default function CartPage () {
                                   transition={{ duration: 0.2 }}
                                   className="font-bold text-lg text-blue-600"
                                 >
-                                  ${(item.price * item.quantity).toFixed(2)}
+                                  <p>₹{(item.salePrice * item.quantity).toFixed(2)}</p>
+                                  <p className='line-through text-blue-400'>₹{(item.price * item.quantity).toFixed(2)}</p>
                                 </motion.div>
                               </div>
                             </div>
@@ -510,7 +511,7 @@ export default function CartPage () {
                         transition={{ duration: 0.2 }}
                         className="font-semibold"
                       >
-                        ${cartTotal.toFixed(2)}
+                        ₹{cartTotal.toFixed(2)}
                       </motion.span>
                     </motion.div>
 
@@ -527,7 +528,7 @@ export default function CartPage () {
                         transition={{ duration: 0.2 }}
                         className={shipping === 0 ? "text-green-600 font-bold" : "font-semibold"}
                       >
-                        {shipping === 0 ? "FREE" : `$${shipping.toFixed(2)}`}
+                        {shipping === 0 ? "FREE" : `₹${shipping.toFixed(2)}`}
                       </motion.span>
                     </motion.div>
 
@@ -536,7 +537,7 @@ export default function CartPage () {
                         variants={itemVariants}
                         className="text-xs text-muted-foreground italic bg-blue-50 p-2 rounded"
                       >
-                        💡 Add ${(50 - cartTotal).toFixed(2)} more for free shipping!
+                        💡 Add ₹{(50 - cartTotal).toFixed(2)} more for free shipping!
                       </motion.p>
                     )}
 
@@ -552,7 +553,7 @@ export default function CartPage () {
                         transition={{ duration: 0.3 }}
                         className="text-blue-600 text-xl"
                       >
-                        ${(cartTotal + shipping).toFixed(2)}
+                        ₹{(cartTotal + shipping).toFixed(2)}
                       </motion.span>
                     </motion.div>
                   </motion.div>
