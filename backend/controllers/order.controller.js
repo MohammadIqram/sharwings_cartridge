@@ -2,6 +2,10 @@ import prisma from "../lib/prisma.js";
 
 export const getCustomerOrderHistory = async (req, res) => {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 5;
+        const skip = (page -1) * limit;
+
         const orders = await prisma.order.findMany({
             where: { userId: req.user.id },
             include: {
@@ -9,15 +13,10 @@ export const getCustomerOrderHistory = async (req, res) => {
                     include: { product: true }
                 }
             },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
+            skip,
+            take: limit
         });
-
-        // Transform structure to match frontend expectation (embedded products array via populate)
-        // Original: orders.products.product (populated)
-        // Prisma: orders.orderItems.product (included)
-        // We need to map `orderItems` to `products` structure if frontend expects it, or keep it as `products` field in JSON.
-        // Original Mongoose model had `products` array embedded. Controller returned `orders`.
-        // Frontend likely iterates `order.products`.
 
         const formattedOrders = orders.map(order => ({
             ...order,
@@ -28,13 +27,7 @@ export const getCustomerOrderHistory = async (req, res) => {
             }))
         }));
 
-        if (!orders || orders.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "No orders found for this user",
-            });
-        }
-        res.json({
+        res.status(200).json({
             success: true,
             orders: formattedOrders
         });
@@ -45,18 +38,22 @@ export const getCustomerOrderHistory = async (req, res) => {
 }
 
 export const requestOrderReturn = async (req, res) => {
-    const { form, selectedOrder } = req.body;
+    const form = req.body;
+    console.log("Received return request form data:", form);
+    if (!form) {
+        return res.status(400).json({success: false, message: "form data is required"});
+    }
     try {
-        const order = await prisma.order.findUnique({ where: { id: selectedOrder } });
+        const order = await prisma.order.findUnique({ where: { id: form.orderId } });
         if (!order) {
-            return res.status(404).json({ success: false, message: "Order not found" });
+            return res.status(404).json({ success: false, message: "Order with this orderID was not found. Please check your orderID and try again." });
         }
         if (order.userId !== req.user.id) {
             return res.status(403).json({ success: false, message: "You are not authorized to return this order" });
         }
 
         await prisma.order.update({
-            where: { id: selectedOrder },
+            where: { id: form.orderId },
             data: {
                 returnReason: form.reason,
                 returnDescription: form.description || '',
