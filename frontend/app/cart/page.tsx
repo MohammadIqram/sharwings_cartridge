@@ -131,11 +131,14 @@ export default function CartPage () {
           body: JSON.stringify({
             products: cart,
             couponCode: null,
-            address: user.address,
           }),
         });
         if (res.ok) {
-          window.location.href = "/orders";
+          window.location.href = "/profile";
+        }
+        const data = await res.json();
+        if (data && data.success) {
+          window.location.href = "/profile"
         }
 				return;
 			}

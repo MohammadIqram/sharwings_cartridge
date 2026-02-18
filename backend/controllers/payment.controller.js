@@ -361,7 +361,7 @@ export const placeOrderWithCashOnDelivery = async (req, res) => {
 			return res.status(400).json({ error: "Invalid or empty products array" });
 		}
 
-		if (!req.user.address || !req.user.address.name) {
+		if (!req.user.address) {
 			return res.status(400).json({ error: "User address is required for checkout" });
 		}
 
