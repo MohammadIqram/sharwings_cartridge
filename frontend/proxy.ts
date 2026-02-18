@@ -8,10 +8,12 @@ const PUBLIC_PATHS = [
   '/terms',
   '/',
   '/category',
+  '/category/:cid',
   '/terms-and-conditions',
   '/privacy-policy',
   '/shipping-policy',
   '/return-policy',
+  '/return-form',
 ];
 
 
