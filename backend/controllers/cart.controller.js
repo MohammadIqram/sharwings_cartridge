@@ -1,4 +1,5 @@
 import prisma from "../lib/prisma.js";
+import { redis } from "../lib/redis.js";
 
 export const getCartProducts = async (req, res) => {
 	try {
@@ -195,6 +196,14 @@ export const addCustomerBillingAddress = async (req, res) => {
 			where: { id: req.user.id },
 			data: { address: req.body } // Assuming body matches Json structure or is generic object
 		});
+
+		// update value in redis
+		const sessionData = await redis.get(`session:${req.user.id}`);
+		if (sessionData) {
+			const session = JSON.parse(sessionData);
+			session.address = req.body;
+			await redis.set(`session:${req.user.id}`, JSON.stringify(session));
+		}
 
 		return res.status(200).json({
 			success: true,

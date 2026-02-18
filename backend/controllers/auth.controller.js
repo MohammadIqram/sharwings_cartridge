@@ -73,6 +73,7 @@ export const signup = async (req, res) => {
 				name,
 				email,
 				password: hashedPassword,
+				address: user.address || null
 			}
 		});
 
@@ -94,6 +95,7 @@ export const signup = async (req, res) => {
 			name: user.name,
 			email: user.email,
 			role: user.role,
+			address: user.address,
 		});
 	} catch (error) {
 		console.log("Error in signup controller", error.message);
@@ -115,6 +117,7 @@ export const login = async (req, res) => {
 				email: user.email,
 				name: user.name,
 				role: user.role,
+				address: user.address,
 			}
 			await tokenStorage(user.id, sessionData);
 			setSingleTokenCookie(res, token);
