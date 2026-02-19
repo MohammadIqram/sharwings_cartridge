@@ -74,7 +74,10 @@ export const createProduct = async (req, res) => {
 			}
 		});
 
-		res.status(201).json(product);
+		res.status(201).json({
+			success: true,
+			message: "product created successfully"
+		});
 	} catch (error) {
 		console.log("Error in createProduct controller", error.message);
 		res.status(500).json({ message: "Server error", error: error.message });
@@ -194,7 +197,10 @@ export const editProductDetails = async (req, res) => {
 		// Optionally update featured products cache if isFeatured or other relevant fields changed
 		await updateFeaturedProductsCache();
 
-		res.json(updatedProduct);
+		res.status(200).json({
+			success: true,
+			message: "product updated successfully!"
+		});
 	} catch (error) {
 		console.log("Error in editProductDetails controller", error.message);
 		res.status(500).json({ message: "Server error", error: error.message });

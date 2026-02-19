@@ -89,7 +89,7 @@ export default function Navbar({ cartCount=0 }) {
                     <div className="px-3 py-2 text-sm text-muted-foreground border-b">{user.email}</div>
                     {
                       user.role === 'admin' && (
-                        <button onClick={() => { setMenuOpen(false); navigate('/dashboard'); }} className="cursor-pointer w-full text-left px-3 py-2 hover:bg-slate-50">Admin Dashboard</button>
+                        <button onClick={() => { setMenuOpen(false); navigate('/admin-dashboard'); }} className="cursor-pointer w-full text-left px-3 py-2 hover:bg-slate-50">Admin Dashboard</button>
                       )
                     }
                     <button onClick={() => { setMenuOpen(false); navigate('/profile'); }} className="cursor-pointer w-full text-left px-3 py-2 hover:bg-slate-50">Profile</button>
