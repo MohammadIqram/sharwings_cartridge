@@ -14,6 +14,8 @@ const PUBLIC_PATHS = [
   '/shipping-policy',
   '/return-policy',
   '/return-form',
+  '/product/:pname',
+  '/product',
 ];
 
 
