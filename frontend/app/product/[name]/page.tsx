@@ -6,45 +6,91 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import {
-  ShoppingCart, Star, ChevronRight, Minus, Plus, Truck, Shield, CheckCircle, RotateCcw
+  ShoppingCart, Star, ChevronRight, Minus, Plus, Truck, Shield, RotateCcw
 } from 'lucide-react';
-import { useRouter } from 'next/router';
+import { useParams } from 'next/navigation';
 import { Product } from '@/common/types';
-import { products } from '@/common/data';
 import { useNavigation } from '@/components/hooks/useNavigation';
 import ProductCard from '@/components/common/product/ProductCard';
+import { toast } from 'sonner';
 
 export default function Pdp () {
   const [product, setProduct] = useState<Product | null>(null);
   const [related, setRelated] = useState([]);
+  const [added, setAdded] = useState(false);
   const [qty, setQty] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  const router = useRouter();
-  const pname = router.query.name || '';
+  const params = useParams();
+  const pname = params?.name || '';
 
   const { navigate } = useNavigation();
 
   useEffect(() => {
-    setLoading(true);
-    // fetch(`/api/products/${productId}`)
-    //   .then(r => r.json())
-    //   .then(data => {
-    //     setProduct(data.product);
-    //     setRelated(data.related || []);
-    //     setLoading(false);
-    //   })
-    //   .catch(() => setLoading(false));
-    setProduct(products.find(p => p.name === pname) || products[0]);
+    const getPdp = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${pname}`);
+        const data = await response.json();
+        if (data.success) {
+          setProduct({
+            ...data.product,
+            slug: data.product.category || pname,
+            brand: data.product.brand || data.product.name?.split(' ')[0],
+            rating: data.product.rating || 4.2,
+            reviews: data.product.reviews || 12,
+          });
+          setLoading(false);
+          return;
+        }
+      } catch (error: any) {
+        console.log('error when fetching products: ', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    getPdp();
   }, [pname]);
 
   if (loading) return <div className="container mx-auto px-4 py-20"><div className="grid md:grid-cols-2 gap-10"><div className="aspect-square bg-muted animate-pulse rounded-2xl" /><div className="space-y-4"><div className="h-8 bg-muted animate-pulse rounded w-3/4" /><div className="h-4 bg-muted animate-pulse rounded w-1/2" /><div className="h-4 bg-muted animate-pulse rounded w-full" /></div></div></div>;
   if (!product) return <div className="container mx-auto px-4 py-20 text-center"><h2 className="text-2xl font-bold">Product not found</h2><Button className="mt-4" onClick={() => navigate('/')}>Go Home</Button></div>;
 
-  const discount = product.salePrice ? Math.round((1 - product.price / product.salePrice) * 100) : 0;
+  // If `price` is original and `salePrice` is discounted price
+  const discount = product.salePrice ? Math.round((1 - product.salePrice / product.price) * 100) : 0;
 
   const onAddToCart = (p: Product) => {
+    // quick demo feedback; integrate with store/cart later
+    console.log('add to cart', (p as any)?.id || p);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 900);
+  }
 
+  const addToCart = async () => {
+    // add product to cart logic here
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/cart`,
+        {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ productId: product.id, quantity: 1 }),
+        }
+      );
+
+      if (!response.ok) {
+        toast.error('Failed to add product to cart');
+        return;
+      }
+
+      toast.success("product added to cart successfully.");
+    } catch (err: any) {
+      console.error('Error adding product to cart:', err.message);
+      toast.error("failed to add product to cart, ", err.message);
+    }
   }
 
   return (
@@ -58,9 +104,19 @@ export default function Pdp () {
           <span className="text-foreground font-medium truncate">{product.name}</span>
         </div>
         <div className="grid md:grid-cols-2 gap-8 md:gap-12">
-          <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
-            <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-            {discount > 0 && <Badge className="absolute top-4 left-4 bg-red-500 text-white text-sm px-3 py-1">-{discount}% OFF</Badge>}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: 'spring', stiffness: 160 }}
+            className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100"
+          >
+            <motion.img src={product.image} alt={product.name} className="w-full h-full object-fit" initial={{ scale: 1 }} whileHover={{ scale: 1.06 }} transition={{ duration: 0.5 }} />
+            {discount > 0 && (
+              <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 1.2, repeat: Infinity }} className="absolute top-4 left-4">
+                <Badge className="bg-red-500 text-white text-sm px-3 py-1">-{discount}% OFF</Badge>
+              </motion.div>
+            )}
           </motion.div>
           <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>
             <div className="flex items-center gap-2 mb-2">
@@ -73,9 +129,9 @@ export default function Pdp () {
               <span className="text-sm text-muted-foreground">{product.rating} ({product.reviews} reviews)</span>
             </div>
             <div className="flex items-baseline gap-3 mb-6">
-              <span className="text-4xl font-bold">${product.price}</span>
-              {product.salePrice && <span className="text-xl text-muted-foreground line-through">${product.salePrice}</span>}
-              {discount > 0 && <Badge className="bg-red-100 text-red-600 hover:bg-red-100">Save ${product.salePrice - product.price}</Badge>}
+              <span className="text-4xl font-bold">${product.salePrice ?? product.price}</span>
+              {product.salePrice && <span className="text-xl text-muted-foreground line-through">${product.price}</span>}
+              {discount > 0 && <Badge className="bg-red-100 text-red-600 hover:bg-red-100">Save ${product.price - (product.salePrice ?? product.price)}</Badge>}
             </div>
             <p className="text-muted-foreground leading-relaxed mb-6">{product.description}</p>
             {/* {product.features && product.features.length > 0 && (
@@ -96,7 +152,9 @@ export default function Pdp () {
               </div>
             </div>
             <div className="flex gap-3">
-              <Button size="lg" className="flex-1 h-12 text-base" onClick={() => { for(let i = 0; i < qty; i++) onAddToCart(product); }}><ShoppingCart className="w-5 h-5 mr-2" /> Add to Cart</Button>
+              <motion.div animate={added ? { scale: [1, 1.04, 1] } : { scale: 1 }} transition={{ duration: 0.6 }} className="flex-1">
+                <Button size="lg" className="w-full h-12 text-base" onClick={addToCart}><ShoppingCart className="w-5 h-5 mr-2" /> Add to Cart</Button>
+              </motion.div>
               <Button size="lg" variant="outline" className="h-12" onClick={() => { for(let i = 0; i < qty; i++) onAddToCart(product); navigate('/cart'); }}>Buy Now</Button>
             </div>
             <div className="mt-6 grid grid-cols-3 gap-3">
@@ -112,7 +170,7 @@ export default function Pdp () {
           <div className="mt-16 md:mt-20">
             <h2 className="text-2xl font-bold mb-8">You May Also Like</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-              {related.map(p => <ProductCard key={p._id} product={p} onAddToCart={onAddToCart} navigate={navigate} />)}
+              {related.map((p: any) => <ProductCard key={p.id} product={p} onAddToCart={addToCart} navigate={navigate} />)}
             </div>
           </div>
         )}

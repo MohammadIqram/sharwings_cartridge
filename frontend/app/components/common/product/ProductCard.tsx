@@ -13,7 +13,7 @@ export default function ProductCard ({ product, onAddToCart, navigate } : { prod
   const discount = product.salePrice ? Math.round((1 - product.price / product.salePrice) * 100) : 0;
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} whileHover={{ y: -6 }} transition={{ duration: 0.3 }} className="group cursor-pointer">
-      <Card className="overflow-hidden border shadow-sm hover:shadow-xl transition-all duration-300" onClick={() => navigate(`/product/${product.id}`)}>
+      <Card className="overflow-hidden border shadow-sm hover:shadow-xl transition-all duration-300" onClick={() => navigate(`/product/${product.name}`)}>
         <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
           <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" />
           <div className="absolute top-3 left-3 flex flex-col gap-1.5">
