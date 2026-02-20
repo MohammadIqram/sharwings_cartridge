@@ -1201,13 +1201,13 @@ export default function ProfilePage() {
         <h3 className="font-semibold mb-4">Direct Support</h3>
         <div className="space-y-3">
           <div>
-            <p className="text-sm text-gray-600">Email: support@example.com</p>
+            <p className="text-sm text-gray-600">Email: sharwings@outlook.com</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600">Phone: +1 (800) 123-4567</p>
+            <p className="text-sm text-gray-600">Phone: +91 780953951, +91 9682124722</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600">Hours: Mon-Fri, 9AM-5PM EST</p>
+            <p className="text-sm text-gray-600">Hours: Mon-Fri, 9AM-6PM IST, Sat: 10:00AM-2:00 PM IST</p>
           </div>
         </div>
       </div>
