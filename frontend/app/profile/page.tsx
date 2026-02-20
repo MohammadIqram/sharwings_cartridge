@@ -124,16 +124,29 @@ export default function ProfilePage() {
 
   // State for billing & address
   const [billingAddress, setBillingAddress] = useState({
-    fullName: "John Doe",
-    phone: "+1 234 567 8900",
-    streetAddress: "123 Main Street",
-    city: "New York",
-    state: "NY",
-    zipCode: "10001",
+    fullName: user?.address?.fullName,
+    phone: user?.address?.phone,
+    streetAddress: user?.address?.street,
+    city: user?.address?.city,
+    state: user?.address?.state,
+    zipCode: user?.address?.zipCode,
     isDefault: true,
   });
   const [editingAddress, setEditingAddress] = useState(false);
   const [tempAddressData, setTempAddressData] = useState({ ...billingAddress });
+
+  useEffect(() => {
+    setProfileData((prev) => ({...prev, name: user?.name}));
+    setEmailState((prev) => ({ ...prev, currentEmail: user?.email }));
+    setBillingAddress((prev) => ({...prev, 
+      fullName: user?.address?.fullName ?? prev.fullName,
+      phone: user?.address?.phone ?? prev.phone,
+      streetAddress: user?.address?.street ?? prev.streetAddress,
+      city: user?.address?.city ?? prev.city,
+      state: user?.address?.state ?? prev.state,
+      zipCode: user?.address?.zipCode ?? prev.zipCode,
+    }))
+  }, [user]);
 
   useEffect(() => {
     const getOrders = async () => {
@@ -225,6 +238,36 @@ export default function ProfilePage() {
         console.log(error);
         toast.error(
           "failed to update your account password. If the issue persists, please contact support. ",
+          error.message || error?.response?.data?.message,
+        );
+      }
+  }
+
+  const addCustomerBillingAddress = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/account/profile/billing-address`,
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(tempAddressData)
+          },
+        );
+        const data = await response.json();
+        if (response.ok && data && data.success) {
+          setBillingAddress(tempAddressData);
+          setEditingAddress(false);
+          toast.success('Billing address updated successfully');
+          return;
+        }
+        toast.error(data.message || "some error occured. Please try later.");
+      } catch (error: any) {
+        console.log(error);
+        toast.error(
+          "failed to update your billing address. If the issue persists, please contact support. ",
           error.message || error?.response?.data?.message,
         );
       }
@@ -396,11 +439,7 @@ export default function ProfilePage() {
 
             <div className="flex gap-2 pt-4">
               <Button
-                onClick={() => {
-                  setBillingAddress(tempAddressData);
-                  setEditingAddress(false);
-                  toast.success("Address updated successfully!");
-                }}
+                onClick={addCustomerBillingAddress}
                 className="bg-green-600 hover:bg-green-700 flex-1"
                 disabled={!tempAddressData.fullName || !tempAddressData.phone || !tempAddressData.streetAddress || !tempAddressData.city || !tempAddressData.state || !tempAddressData.zipCode}
               >

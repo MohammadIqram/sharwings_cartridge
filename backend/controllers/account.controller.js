@@ -87,3 +87,46 @@ export const changePassword = async (req, res) => {
         });
     }
 }
+
+export const updateCustomerBillingAddress = async (req, res) => {
+    try {
+        const address = req.body;
+        console.log(address);
+        if (!address) {
+            return res.status(400).json({
+                success: false,
+                message: "please provide a valid form data for the profile updation."
+            });
+        }
+
+        const result = await prisma.user.update(
+            {
+                where: {
+                    id: req.user.id
+                },
+                data: {
+                    address: address
+                }
+            }
+        );
+
+        if (result.id) {
+            return res.status(200).json({
+                success: true,
+                message: "Billing address updated successfully!"
+            });
+        }
+
+        return res.status(500).json({
+            success: false,
+            message: "there was some error when updating your billing address. Please try again sometime."
+        });
+    }
+    catch (error) {
+        console.log('error from the billingAddress controller: ', error.message || error);
+        return res.status(500).json({
+            success: false,
+            message: "some unexpected error occured. Please try again sometime."
+        })
+    }
+}
