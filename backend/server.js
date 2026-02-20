@@ -11,6 +11,7 @@ import couponRoutes from "./routes/coupon.route.js";
 import paymentRoutes from "./routes/payment.route.js";
 import analyticsRoutes from "./routes/analytics.route.js";
 import orders from "./routes/order.route.js";
+import accountRoutes from "./routes/account.route.js";
 
 // Connect to DB handled by Prisma Client automatically
 // import { connectDB } from "./lib/db.js";
@@ -85,6 +86,7 @@ app.use("/api/orders", orders)
 app.use("/api/coupons", couponRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/account", accountRoutes);
 
 const clientDistPath = path.join(__dirname, "frontend", "dist");
 const clientIndexPath = path.join(clientDistPath, "index.html");

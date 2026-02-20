@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/pagination";
 import { toast } from "sonner";
 import { Copy, Check } from "lucide-react";
+import { useUserStore } from "../../stores/useUserStore";
 
 type MenuItemType = "account" | "orders" | "returns" | "claims" | "billing" | "help" | "delete";
 
@@ -95,17 +96,17 @@ export default function ProfilePage() {
   const [orderHistory, setOrderHistory] = useState<any>([]);
   const [copied, setCopied] = useState('');
 
+  const { user, updateUser } = useUserStore();
+
   // State for different account sections
   const [profileData, setProfileData] = useState({
-    name: "John Doe",
-    phone: "+1 234 567 8900",
-    address: "123 Main Street, City, State 12345",
+    name: user?.name,
   });
   const [editingProfile, setEditingProfile] = useState(false);
 
   // State for email change
   const [emailState, setEmailState] = useState({
-    currentEmail: "john@example.com",
+    currentEmail: user?.email,
     newEmail: "",
     password: "",
     otp: "",
@@ -133,15 +134,6 @@ export default function ProfilePage() {
   });
   const [editingAddress, setEditingAddress] = useState(false);
   const [tempAddressData, setTempAddressData] = useState({ ...billingAddress });
-
-  // Sample user data - replace with actual user data from your store
-  const [userData, setUserData] = useState({
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "+1 234 567 8900",
-    address: "123 Main Street, City, State 12345",
-    createdAt: "2024-01-15",
-  });
 
   useEffect(() => {
     const getOrders = async () => {
@@ -177,6 +169,65 @@ export default function ProfilePage() {
     } catch (error: any) {
         toast.error('error when copying order ID, please check the browser permissions and try again.');
     }
+  }
+
+  // profileInformation
+  const handleProfileInformation = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/account/profile`,
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(profileData)
+          },
+        );
+        const data = await response.json();
+        if (response.ok && data && data.success) {
+          toast.success('Full name updated successfully');
+          updateUser({ name: profileData.name });
+          setEditingProfile(false);
+          return;
+        }
+        toast.error(data.message || "some unexpected error occured.");
+      } catch (error: any) {
+        console.log(error);
+        toast.error(
+          "failed to update the fullname, ",
+          error.message || error?.response?.data?.message,
+        );
+      }
+  };
+
+  const handlePasswordChange = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/account/profile/change-password`,
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(passwordState)
+          },
+        );
+        const data = await response.json();
+        if (response.ok && data && data.success) {
+          toast.success('password updated successfully');
+          return;
+        }
+        toast.error(data.message || "some error occured. Please try later.");
+      } catch (error: any) {
+        console.log(error);
+        toast.error(
+          "failed to update your account password. If the issue persists, please contact support. ",
+          error.message || error?.response?.data?.message,
+        );
+      }
   }
 
   const menuItems = [
@@ -403,29 +454,7 @@ export default function ProfilePage() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">Phone Number</label>
-            <Input
-              type="tel"
-              value={profileData.phone}
-              onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
-              disabled={!editingProfile}
-              className="w-full"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Address</label>
-            <Input
-              type="text"
-              value={profileData.address}
-              onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
-              disabled={!editingProfile}
-              className="w-full"
-            />
-          </div>
-
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium mb-2">Member Since</label>
             <Input
               type="text"
@@ -433,7 +462,7 @@ export default function ProfilePage() {
               disabled
               className="w-full bg-gray-50"
             />
-          </div>
+          </div> */}
         </div>
 
         <div className="flex gap-2 pt-4">
@@ -447,7 +476,7 @@ export default function ProfilePage() {
           ) : (
             <>
               <Button
-                onClick={() => setEditingProfile(false)}
+                onClick={handleProfileInformation}
                 className="bg-green-600 hover:bg-green-700"
               >
                 Save Changes
@@ -652,10 +681,7 @@ export default function ProfilePage() {
 
         <div className="flex gap-2 pt-4">
           <Button
-            onClick={() => {
-              // Handle password change
-              console.log("Changing password");
-            }}
+            onClick={handlePasswordChange}
             className="bg-orange-600 hover:bg-orange-700"
             disabled={
               !passwordState.oldPassword || 

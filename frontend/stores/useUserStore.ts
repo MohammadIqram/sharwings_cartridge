@@ -6,7 +6,7 @@ import { toast } from "sonner";
 ======================= */
 
 type User = {
-  _id?: string;
+  id?: string;
   name?: string;
   email?: string;
   address?: any;
@@ -26,6 +26,7 @@ type UserStore = {
   checkingAuth: boolean;
 
   setUser: (user: User | null) => void;
+  updateUser: (user: Partial<User>) => void;
   signup: (data: SignupPayload) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -43,6 +44,10 @@ export const useUserStore = create<UserStore>((set, get) => ({
   loading: false,
   checkingAuth: true,
   setUser: (user: User | null) => set({user}),
+  updateUser: (data: User) =>
+    set((state) => ({
+      user: state.user ? { ...state.user, ...data } : null,
+  })),
 
   signup: async ({ name, email, password, confirmPassword }) => {
     set({ loading: true });
