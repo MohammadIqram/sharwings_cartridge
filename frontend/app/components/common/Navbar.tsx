@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,9 @@ import {
 import { useNavigation } from '../hooks/useNavigation';
 import { categories } from '@/common/data';
 import { useUserStore } from '../../../stores/useUserStore';
+import { Product } from '@/common/types';
+
+const DEBOUNCE_DELAY = 500; // milliseconds
 
 export default function Navbar({ cartCount=0 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -22,6 +25,10 @@ export default function Navbar({ cartCount=0 }) {
   const { user, logout } = useUserStore();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -30,6 +37,68 @@ export default function Navbar({ cartCount=0 }) {
       console.error(err);
     }
   };
+
+  // Ref to store debounce timer
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const handleSearch = async (searchQuery: string) => {
+    if (!searchQuery) {
+      setError("Please enter a product name");
+      setProducts([]);
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/products/search?name=${encodeURIComponent(
+          searchQuery
+        )}`
+      );
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Something went wrong");
+        setProducts([]);
+      } else {
+        setProducts(data.products);
+      }
+    } catch (err: any) {
+      setError("Network error: " + err.message);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle input changes with debounce
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    debounceTimer.current = setTimeout(() => {
+      handleSearch(value);
+    }, DEBOUNCE_DELAY);
+  };
+
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setProducts([]);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
 
   return (
     <motion.header initial={{ y: -100 }} animate={{ y: 0 }} transition={{ duration: 0.5 }} className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b">
@@ -102,12 +171,26 @@ export default function Navbar({ cartCount=0 }) {
         </div>
         <AnimatePresence>
           {searchOpen && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="relative">
               <div className="pb-4 flex gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input placeholder="Search products..." className="pl-10" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSearch()} />
+                  <Input placeholder="Search products..." className="pl-10" value={searchQuery} onChange={handleInputChange} />
                 </div>
+              </div>
+              <div className='absolute top-8 left-0 w-full rounded-lg shadow-lg bg-white'>
+                {
+                  products?.map((product: Product) => (
+                    <div onClick={() => {
+                      navigate(`/product/${product.name}`)
+                      setSearchQuery("");
+                      setProducts([]);
+                    }} className='search-result-container flex items-center gap-4 p-2 m-4 cursor-pointer hover:bg-gray-200'>
+                      <img src={product.image} alt="product image" className='h-12 w-12' />
+                      <p className='text-sm font-lg'>{product.name}</p>
+                    </div>
+                  ))
+                }
               </div>
             </motion.div>
           )}
