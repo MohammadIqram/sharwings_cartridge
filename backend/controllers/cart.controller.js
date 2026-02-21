@@ -214,3 +214,42 @@ export const addCustomerBillingAddress = async (req, res) => {
 		res.status(500).json({ message: "server error", error: error.message });
 	}
 }
+
+export const removeFromCart = async (req, res) => {
+	try {
+		const { productId } = req.params;
+		const userId = req.user.id;
+
+		if (!productId) {
+			return res.status(400).json({
+				success: false,
+				message: "Product ID is required"
+			});
+		}
+		console.log('klsdfj', productId);
+		const deletedItem = await prisma.cartItem.deleteMany({
+			where: {
+				userId,
+				productId
+			}
+		});
+
+		if (deletedItem.count === 0) {
+			return res.status(404).json({
+				success: false,
+				message: "Product not found in cart"
+			});
+		}
+
+		res.status(200).json({
+			success: true,
+			message: "Product removed from cart"
+		});
+	} catch (error) {
+		res.status(500).json({
+			success: false,
+			message: "Server error",
+			error: error.message
+		});
+	}
+};

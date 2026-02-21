@@ -11,11 +11,12 @@ import {
   ShoppingCart, ChevronRight, Minus, Plus,
   Trash2, ArrowLeft,
   ArrowRight, Package, Truck, Pencil, X,
-  MapPin, DollarSign
+  MapPin
 } from 'lucide-react';
 import { useNavigation } from '@/components/hooks/useNavigation';
 import { toast } from 'sonner';
 import { useUserStore } from '../../stores/useUserStore';
+import { Product } from '@/common/types';
 
 interface AddressProp {
  fullName: string;
@@ -66,6 +67,16 @@ export default function CartPage () {
     zipCode: '',
   });
   const [isProcessing, setIsProcessing] = useState(false);
+  const [cartTotal, setCartTotal] = useState(0);
+  const shipping = cartTotal > 0 ? 0 : 10;
+
+  const calculateTotals  = (data: any) => {
+    if (data.length > 0) {
+      setCartTotal(data?.reduce((total: number, item: Product) => total + (item.salePrice * item.quantity), 0));
+      return
+    }
+    setCartTotal(data?.reduce((total: number, item: Product) => total + (item.salePrice * item.quantity), 0));
+  }
 
   // get cart
   useEffect(() => {
@@ -79,6 +90,7 @@ export default function CartPage () {
         }
         const data = await response.json();
         setCart(data);
+        calculateTotals(data);
       } catch (error) {
         console.error('Error fetching cart:', error);
       }
@@ -207,6 +219,32 @@ export default function CartPage () {
 		}
 	};
 
+  const removeProduct = async (e: any) => {
+      try {
+        const pid = e?.currentTarget?.dataset?.pid;
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/cart/product/${pid}`, {
+          method: "DELETE",
+          credentials: 'include',
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch cart');
+        }
+        const data = await response.json();
+        if (data.success) {
+        const updatedCart = cart.filter((product) => {
+          return product.id !== pid;
+        });
+          setCart(updatedCart);
+          calculateTotals(updatedCart);
+          toast.success("product removed from cart successfully");
+          return;
+        }
+        toast.error(data.message || "some error occured when deleting the product from the cart.");
+      } catch (error) {
+        console.error('Error fetching cart:', error);
+      }
+  }
+
   if (cart.length === 0) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="py-20 min-h-screen">
@@ -231,9 +269,6 @@ export default function CartPage () {
       </motion.div>
     );
   }
-
-  const cartTotal = cart.reduce((total, item) => total + (item.salePrice * item.quantity), 0);
-  const shipping = cartTotal > 50 ? 0 : 10;
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -383,7 +418,7 @@ export default function CartPage () {
               className="space-y-4"
             >
               <AnimatePresence>
-                {cart.map((item, index) => (
+                {cart?.map((item, _: number) => (
                   <motion.div 
                     key={item.id} 
                     layout 
@@ -422,7 +457,8 @@ export default function CartPage () {
                                   variant="ghost" 
                                   size="icon" 
                                   className="text-muted-foreground hover:text-red-500 shrink-0 transition-colors"
-                                  onClick={() => {}}
+                                  data-pid={item.id}
+                                  onClick={removeProduct}
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </motion.button>
