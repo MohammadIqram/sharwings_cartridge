@@ -32,7 +32,6 @@ export const addToCart = async (req, res) => {
 		const { productId, quantity, _id, id } = req.body;
 		const resolvedProductId = productId || _id || id;
 		const userId = req.user.id;
-		console.log('klsdfjskldfjsdklfjsdklf', userId);
 
 		if (!resolvedProductId) {
 			return res.status(400).json({ message: "Product ID is required" });
@@ -52,45 +51,20 @@ export const addToCart = async (req, res) => {
 		});
 
 		if (existingItem) {
-			if (quantity > existingItem.quantity) {
-				// Logic check: if user wants to add `quantity` amount? 
-				// Code seems to imply `quantity` is the *new* total or the increment?
-				// Original: `existingItem.quantity += 1` implies increment by 1 regardless of body quantity?
-				// Wait, original: `if (quantity > existingItem.quantity)`? This looks confusing in original code.
-				// Original: 
-				// if (existingItem) {
-				//    if (quantity > existingItem.quantity) ...
-				// 	  existingItem.quantity += 1;
-				// }
-				// Use input quantity is unused in existingItem block except for check? 
-				// Actually `quantity` from body likely means "how many I want to buy total" or "how many to add"?
-				// Standard add to cart is usually "add 1".
-				// Let's assume add 1 if exists, or set to provided quantity?
-				// The original code was `existingItem.quantity += 1`.
+			const newQuantity = existingItem.quantity + quantity;
 
-				// But it checked `quantity > existingItem.quantity`. `quantity` from body.
-				// Assuming `quantity` in body is usually 1.
-
-				// Let's stick to simple logic: increment by 1 or incoming quantity.
-				// But I'll follow original logic closely: increment by 1.
-
-				// Check stock
-				// if (existingItem.quantity + 1 > product.quantity) {
-				//   return res.status(500).json({ message: `Only ${product.quantity} in stock.` });
-				// }
-
-				await prisma.cartItem.update({
-					where: { id: existingItem.id },
-					data: { quantity: existingItem.quantity + 1 }
-				});
-			} else {
-				// Fallback or bug in original logic. 
-				// I will just increment.
-				await prisma.cartItem.update({
-					where: { id: existingItem.id },
-					data: { quantity: existingItem.quantity + 1 }
+			if (newQuantity > product.quantity) {
+				return res.status(400).json({
+					success: false,
+					message: `Cannot add ${quantity} items. Only ${product.quantity - existingItem.quantity} more in stock.`
 				});
 			}
+
+			// Update cart item
+			await prisma.cartItem.update({
+				where: { id: existingItem.id },
+				data: { quantity: newQuantity }
+			});
 		} else {
 			// New item
 			// user.cartItems.push({_id: productId, quantity: quantity || 1});
@@ -107,10 +81,10 @@ export const addToCart = async (req, res) => {
 				}
 			});
 		}
-
-		// Return updated cart
-		const updatedCartItems = await prisma.cartItem.findMany({ where: { userId } });
-		res.json(updatedCartItems);
+		res.status(200).json({
+			success: true,
+			message: "product added to cart successfully."
+		});
 	} catch (error) {
 		console.log(error);
 		console.log("Error in addToCart controller", error.message);

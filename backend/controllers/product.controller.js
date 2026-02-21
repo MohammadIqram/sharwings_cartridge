@@ -284,10 +284,6 @@ export const updateProductQuantity = async (req, res) => {
 		const { id, quantity } = req.body;
 		console.log(id, quantity);
 
-		if (quantity < 0) {
-			return res.status(400).json({ message: "Quantity cannot be negative" });
-		}
-
 		const product = await prisma.product.findUnique({
 			where: { id },
 			select: { quantity: true }
@@ -303,6 +299,14 @@ export const updateProductQuantity = async (req, res) => {
 				messsage: "this is the last piece of this product, you cannot update the quantity to more than 1",
 			});
 		}
+
+		await prisma.cartItem.updateMany({
+			where: { userId: req.user.id, productId: id },
+			data: {
+				quantity: { increment: quantity },
+			},
+		});
+
 		return res.status(200).json({
 			success: true,
 			message: "Product quantity updated successfully",

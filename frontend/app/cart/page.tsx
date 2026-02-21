@@ -245,6 +245,37 @@ export default function CartPage () {
       }
   }
 
+  const handleQty = async (pid: string, action: string) => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products/quantity`, {
+          method: "POST",
+          credentials: 'include',
+          headers: {
+            'Content-Type': "application/json",
+          },
+          body: JSON.stringify({id: pid, quantity: action === '+' ? 1 : -1})
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch cart');
+        }
+        const data = await response.json();
+        if (data.success) {
+          const newCart = cart.map(item => 
+            item.id === pid
+              ? { ...item, quantity: action === "+" ? item.quantity + 1 : Math.max(item.quantity - 1, 1) } // prevent qty < 1
+              : item
+          );
+          setCart(newCart);
+          calculateTotals(newCart);
+          toast.success("product quantity updated successfully");
+          return;
+        }
+        toast.error(data.message || "some error occured when updating the product quantity from the cart.");
+      } catch (error) {
+        console.error('Error fetching cart:', error);
+      }
+  }
+
   if (cart.length === 0) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="py-20 min-h-screen">
@@ -475,7 +506,7 @@ export default function CartPage () {
                                     variant="ghost" 
                                     size="icon" 
                                     className="h-8 w-8 hover:bg-muted rounded-full transition-colors flex justify-center items-center"
-                                    onClick={() => {}}
+                                    onClick={() => handleQty(item.id, '-')}
                                   >
                                     <Minus className="w-3 h-3" />
                                   </motion.button>
@@ -493,7 +524,7 @@ export default function CartPage () {
                                     variant="ghost" 
                                     size="icon" 
                                     className="h-8 w-8 hover:bg-muted rounded-full transition-colors"
-                                    onClick={() => {}}
+                                    onClick={() => handleQty(item.id, '+')}
                                   >
                                     <Plus className="w-3 h-3" />
                                   </motion.button>

@@ -77,12 +77,14 @@ export default function Pdp () {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ productId: product.id, quantity: 1 }),
+          body: JSON.stringify({ productId: product.id, quantity: qty }),
         }
       );
 
-      if (!response.ok) {
-        toast.error('Failed to add product to cart');
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        toast.error(data.message || 'Failed to add product to cart');
         return;
       }
 
