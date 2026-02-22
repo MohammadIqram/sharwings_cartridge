@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 
-const categories = ["fans", "ledlights", "switches-and-sockets", "wires"];
+const categories = ["fans", "ledlights", "switches-and-sockets", "wires", "clearance-sale"];
 
 const CreateProductForm = () => {
   const [newProduct, setNewProduct] = useState({
