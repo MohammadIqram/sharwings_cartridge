@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Product } from '@/common/types';
 import ProductCard from '@/components/common/product/ProductCard';
@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 
 export default function ProductsPage() {
   const { cid } = useParams();
-  console.log("Category ID:", cid);
 
   const {navigate} = useNavigation();
 

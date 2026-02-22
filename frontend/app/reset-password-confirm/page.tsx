@@ -1,15 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useState } from "react";
+import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 
 export default function ResetPasswordPage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-
-  const token = searchParams.get("token");
+  const { token } = useParams();
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -70,7 +67,7 @@ export default function ResetPasswordPage() {
       if (data.success) {
         setSuccess(data.message);
         setTimeout(() => {
-          router.push("/login");
+          window.location.href = "/login";
         }, 2000);
         return;
       }
