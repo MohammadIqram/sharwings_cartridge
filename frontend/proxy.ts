@@ -16,6 +16,8 @@ const PUBLIC_PATHS = [
   '/return-form',
   '/product/:pname',
   '/product',
+  '/forgot-password',
+  '/reset-password-confirm',
 ];
 
 

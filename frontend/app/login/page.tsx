@@ -141,7 +141,7 @@ export default function LoginPage() {
               className="text-center"
             >
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/forgot-password')}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Forgot password?

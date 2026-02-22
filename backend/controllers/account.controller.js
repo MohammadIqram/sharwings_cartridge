@@ -1,5 +1,8 @@
 import prisma from "../lib/prisma.js";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { forgotPasswordTemplate } from "../templates/accounts.js";
+import EmailHelper from "../helpers/emailHelper.js";
 
 export const updateProfile = async (req, res) => {
     try {
@@ -127,6 +130,135 @@ export const updateCustomerBillingAddress = async (req, res) => {
         return res.status(500).json({
             success: false,
             message: "some unexpected error occured. Please try again sometime."
+        })
+    }
+}
+
+export const resetPasswordInitiate = async (req, res) => {
+
+    if (!req.body || !req.body?.email) {
+        return res.status(400).json({
+            success: false,
+            message: "enter a valid email ID to reset your password",
+        });
+    }
+
+    try {
+        const email = req.body.email;
+        const user = await prisma.user.findUnique({
+            where: {
+                email: email,
+            },
+            select: {
+                email: true,
+                name: true,
+                role: true,
+            },
+        });
+    
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "user with this email ID was not found. Please check your email ID and try again."
+            });
+        }
+    
+        const token = await jwt.sign(
+            { email: user.email },
+            process.env.PASSWORD_RESET_JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+    
+        const resetLink = `${process.env.CLIENT_URL}/reset-password-confirm?token=${token}`;
+        const html = EmailHelper.renderTemplate(forgotPasswordTemplate, {
+            name: user?.name,
+            resetLink: resetLink,
+            token: token,
+            expiryTime: '1 hour',
+        });
+    
+        const emailHelper = new EmailHelper();
+        await emailHelper.sendEmail({
+            to: user.email,
+            subject: "password reset link",
+            text: "your password reset link is here",
+            html: html,
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "email with password reset link has been sent to your email ID. If you where not able to find the email look into your spam folder or try again."
+        });
+    }
+    catch (error) {
+        console.log('error from the reset password controller: ', error);
+        return res.status(500).json({
+            success: false,
+            message: "some unexpected error occured. Please try again later."
+        });
+    }
+}
+
+export const resetPasswordConfirm = async (req, res) => {
+    
+    try {
+        const { token, newPassword } = req.body;
+
+        if (!token || !newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "It seems like the link is expired. Please request a new one."
+            });
+        }
+
+        const passwordRegex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+        if (!passwordRegex.test(newPassword)) {
+            return res.status(400).json({
+                success: false,
+                message:
+                "Password must be at least 8 characters and include uppercase, lowercase and a number.",
+            });
+        }
+
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.PASSWORD_RESET_JWT_SECRET);
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(newPassword, salt);
+            const user = await prisma.user.update(
+                {
+                    where: {
+                        email: decoded.email
+                    },
+                    data: {
+                        password: hashedPassword
+                    },
+                    select: {
+                        email: true
+                    }
+                }
+            )
+            if (user.email) {
+                return res.status(200).json({
+                    success: true,
+                    message: "Password for your account has been changed successfully.",
+                })
+            }
+            return res.status(400).json({
+                success: false,
+                message: "some unexpected error occured when changing your password. Please try again or if the issue persists contact support."
+            })
+        } catch (err) {
+            return res.status(400).json({
+                message: "It seems like the link is expired. Please request a new one.",
+            });
+        }
+    } catch (e) {
+        return res.status(400).json({
+            success: false,
+            message: "some unexpected error occured. Please try again later."
         })
     }
 }
