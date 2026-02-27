@@ -173,7 +173,7 @@ export default function HomePage() {
               <Badge className="mb-4 bg-white/20 text-white hover:bg-white/30 border-0">Limited Time Offer</Badge>
               <h2 className="text-3xl md:text-5xl font-bold mb-4">Up to 80% Off</h2>
               <p className="text-lg text-white/70 mb-8">Don't miss out on our biggest sale of the season. Premium products at unbeatable prices.</p>
-              <Button size="lg" className="bg-white text-indigo-600 hover:bg-white/90 font-semibold" onClick={() => navigate('/category/all')}>Shop the Sale <ArrowRight className="w-4 h-4 ml-2" /></Button>
+              <Button size="lg" className="bg-white text-indigo-600 hover:bg-white/90 font-semibold" onClick={() => navigate('/category/clearance-sale')}>Shop the Sale <ArrowRight className="w-4 h-4 ml-2" /></Button>
             </div>
           </motion.div>
         </div>

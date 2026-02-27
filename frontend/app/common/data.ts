@@ -5,6 +5,8 @@ export const categories: Category[] = [
   { id: 'switchesandsockets', name: 'Switches and Sockets', slug: 'switches-and-sockets', description: 'Trendy clothing and accessories', image: '/images/switches.jpeg' },
   { id: 'ledlights', name: 'Led Lights', slug: 'ledlights', description: 'Everything for your home', image: '/images/bulbs.jpeg' },
   { id: 'cablesandwires', name: 'Cables and Wires', slug: 'cables-and-wires', description: 'Equipment and gear for active lifestyles', image: '/images/wires.jpeg' },
+  { id: 'mcbs', name: 'MCB\'s', slug: 'mcb', description: 'mcb', image: '/images/mcb.jpeg' },
+  { id: 'otheraccessories', name: 'Other Accessories', slug: 'other-accessories', description: 'other electronic accessories', image: '/images/other-accessories.jpeg' },
   { id: 'clearancesale', name: 'Clearance Sale', slug: 'clearance-sale', description: 'sale of the year.', image: "/images/bulbs.jpeg" },
 ];
 

@@ -6,8 +6,8 @@ import { Upload, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-
-const categories = ["fans", "ledlights", "switches-and-sockets", "wires", "clearance-sale"];
+import { categories } from "@/common/data";
+import { Category } from "@/common/types";
 
 const CreateProductForm = () => {
   const [newProduct, setNewProduct] = useState({
@@ -199,8 +199,8 @@ const CreateProductForm = () => {
               required
             >
               <option value="">Select a category</option>
-              {categories.map((category) => (
-                <option key={category} value={category}>{category}</option>
+              {categories.map((category: Category) => (
+                <option key={category.id} value={category.slug}>{category.name}</option>
               ))}
             </select>
           </div>
