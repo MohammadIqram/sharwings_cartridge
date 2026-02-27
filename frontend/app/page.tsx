@@ -55,7 +55,7 @@ export default function HomePage() {
               alt="Sharwings background logo"
               fill
               priority
-              className="object-cover"
+              className="object-fit md:object-cover"
             />
 
           {/* Optional dark overlay */}
