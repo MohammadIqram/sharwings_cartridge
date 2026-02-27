@@ -7,15 +7,11 @@ const PUBLIC_PATHS = [
   '/contact',
   '/terms',
   '/',
-  '/category',
-  '/category/:cid',
   '/terms-and-conditions',
   '/privacy-policy',
   '/shipping-policy',
   '/return-policy',
   '/return-form',
-  '/product/:pname',
-  '/product',
   '/forgot-password',
   '/reset-password-confirm',
 ];
@@ -31,7 +27,11 @@ export function proxy(req: NextRequest) {
     pathname.startsWith('/api') ||   // API routes
     PUBLIC_PATHS.includes(pathname) || // public pages
     pathname.startsWith('/images/') ||
-    pathname === '/favicon.ico'
+    pathname === '/favicon.ico' ||
+    
+    // Dynamic public routes
+    pathname.startsWith('/category/') ||
+    pathname.startsWith('/product/')
   ) {
     return NextResponse.next();
   }
