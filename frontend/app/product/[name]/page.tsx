@@ -131,9 +131,9 @@ export default function Pdp () {
               <span className="text-sm text-muted-foreground">{product.rating} ({product.reviews} reviews)</span>
             </div>
             <div className="flex items-baseline gap-3 mb-6">
-              <span className="text-4xl font-bold">${product.salePrice ?? product.price}</span>
-              {product.salePrice && <span className="text-xl text-muted-foreground line-through">${product.price}</span>}
-              {discount > 0 && <Badge className="bg-red-100 text-red-600 hover:bg-red-100">Save ${product.price - (product.salePrice ?? product.price)}</Badge>}
+              <span className="text-4xl font-bold">₹{product.salePrice ?? product.price}</span>
+              {product.salePrice && <span className="text-xl text-muted-foreground line-through">₹{product.price}</span>}
+              {discount > 0 && <Badge className="bg-red-100 text-red-600 hover:bg-red-100">Save ₹{product.price - (product.salePrice ?? product.price)}</Badge>}
             </div>
             <p className="text-muted-foreground leading-relaxed mb-6">{product.description}</p>
             {/* {product.features && product.features.length > 0 && (

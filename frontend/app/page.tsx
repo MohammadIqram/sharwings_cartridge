@@ -80,7 +80,7 @@ export default function HomePage() {
       <section className="border-b">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 divide-x">
-            {[{ icon: Truck, title: 'Free Shipping', desc: 'On all orders' }, { icon: Shield, title: 'Secure Payment', desc: '100% protected' }, { icon: RotateCcw, title: 'Easy Returns', desc: '30-day guarantee' }, { icon: Package, title: 'Fast Delivery', desc: '2-5 business days' }].map((b, i) => (
+            {[{ icon: Truck, title: 'Free Shipping', desc: 'On all orders' }, { icon: Shield, title: 'Secure Payment', desc: '100% protected' }, { icon: RotateCcw, title: 'Easy Returns', desc: '7-day guarantee' }, { icon: Package, title: 'Fast Delivery', desc: '2-5 business days' }].map((b, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="flex items-center gap-3 py-5 px-4">
                 <b.icon className="w-5 h-5 text-muted-foreground shrink-0" />
                 <div><p className="text-sm font-semibold">{b.title}</p><p className="text-xs text-muted-foreground">{b.desc}</p></div>
