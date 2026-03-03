@@ -1,5 +1,5 @@
 
-export const validateCloudflareCaptcha = async(token) => {
+export const validateCloudflareCaptcha = async(token, ip) => {
     const result = {
         valid: false,
         error: 'invalid session',
@@ -17,12 +17,14 @@ export const validateCloudflareCaptcha = async(token) => {
             body: new URLSearchParams({
                 secret: process.env.TURNSTILE_SECRET_KEY,
                 response: token,
+                remoteip: ip
             }),
         })
         const data = await response.json();
         if (!data.success) {
             result.error = `Bot detected / ${data["error-codes"]}`;
         }
+        result.valid = true;
         return result;
     } catch (error) {
         console.log('this is a error', error);

@@ -66,7 +66,7 @@ export const signup = async (req, res) => {
 				message: "please try submitting the form again."
 			});
 		}
-		const result = await validateCloudflareCaptcha(token);
+		const result = await validateCloudflareCaptcha(token, req.ip);
 		if (!result.valid) {
 			return res.status(400).json({
 				success: false,
@@ -126,7 +126,7 @@ export const login = async (req, res) => {
 				message: "please try submitting the form again."
 			});
 		}
-		const result = await validateCloudflareCaptcha(token);
+		const result = await validateCloudflareCaptcha(token, req.ip);
 		if (!result.valid) {
 			return res.status(400).json({
 				success: false,
