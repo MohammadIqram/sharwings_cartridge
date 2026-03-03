@@ -21,7 +21,7 @@ export const validateCloudflareCaptcha = async(token) => {
         })
         const data = await response.json();
         if (!data.success) {
-            result.error = `Bot detected / ${data[error-codes]}`;
+            result.error = `Bot detected / ${data["error-codes"]}`;
         }
         return result;
     } catch (error) {
