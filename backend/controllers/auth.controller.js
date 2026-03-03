@@ -2,6 +2,7 @@ import prisma from "../lib/prisma.js";
 import { redis } from "../lib/redis.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs"; // Need to manually compare passwords now since no Mongoose method
+import { validateCloudflareCaptcha } from "../helpers/tokenHelper.js";
 
 const generateTokens = (userId) => {
 	const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
@@ -57,8 +58,21 @@ const setSingleTokenCookie = (res, token) => {
 }
 
 export const signup = async (req, res) => {
-	const { email, password, name } = req.body;
 	try {
+		const { email, password, name } = req.body;
+		if (!email, !password, !name, !token) {
+			return res.status(400).json({
+				success: false,
+				message: "please try submitting the form again."
+			});
+		}
+		const result = await validateCloudflareCaptcha(token);
+		if (!result.valid) {
+			return res.status(400).json({
+				success: false,
+				message: result.error
+			});
+		}
 		const userExists = await prisma.user.findUnique({ where: { email } });
 
 		if (userExists) {
@@ -105,10 +119,21 @@ export const signup = async (req, res) => {
 
 export const login = async (req, res) => {
 	try {
-		const { email, password } = req.body;
+		const { email, password, token } = req.body;
+		if (!email || !password || !token) {
+			return res.status(400).json({
+				success: false,
+				message: "please try submitting the form again."
+			});
+		}
+		const result = await validateCloudflareCaptcha(token);
+		if (!result.valid) {
+			return res.status(400).json({
+				success: false,
+				message: result.error
+			});
+		}
 		const user = await prisma.user.findUnique({ where: { email } });
-		console.log('this is a db user: ', user);
-
 		if (user && (await bcrypt.compare(password, user.password))) {
 			// authenticate
 			const { token } = generateSingleToken(user.id);

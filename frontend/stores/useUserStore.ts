@@ -27,8 +27,8 @@ type UserStore = {
 
   setUser: (user: User | null) => void;
   updateUser: (user: Partial<User>) => void;
-  signup: (data: SignupPayload) => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
+  signup: (data: SignupPayload, token: string | null) => Promise<void>;
+  login: (email: string, password: string, token: string | null) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
   refreshToken: () => Promise<any>;
@@ -49,7 +49,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       user: state.user ? { ...state.user, ...data } : null,
   })),
 
-  signup: async ({ name, email, password, confirmPassword }) => {
+  signup: async ({ name, email, password, confirmPassword }, token) => {
     set({ loading: true });
 
     if (password !== confirmPassword) {
@@ -63,7 +63,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, token }),
       });
 
       const data = await res.json();
@@ -78,7 +78,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
     }
   },
 
-  login: async (email, password) => {
+  login: async (email, password, token) => {
     set({ loading: true });
 
     try {
@@ -86,7 +86,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, token }),
       });
 
       const data = await res.json();

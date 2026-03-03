@@ -8,16 +8,18 @@ import { ChevronRight } from 'lucide-react';
 import { useNavigation } from '@/components/hooks/useNavigation';
 import { Spinner } from '@/components/ui/spinner';
 import { useUserStore } from '../../stores/useUserStore';
+import { Turnstile } from "@marsidev/react-turnstile";
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { navigate } = useNavigation();
   const { login, loading } = useUserStore();
+  const [token, setToken] = useState(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    await login(email, password);
+    await login(email, password, token);
   };
 
   const containerVariants = {
@@ -106,7 +108,11 @@ export default function LoginPage() {
                         Login
                         </Button>
                     </motion.div>
-
+                    <Turnstile
+                      siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                      onSuccess={(token: any) => setToken(token)}
+                      onExpire={() => setToken(null)}
+                    />
             </motion.form>
 
             {/* Divider */}

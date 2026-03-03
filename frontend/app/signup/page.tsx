@@ -8,6 +8,7 @@ import { ChevronRight } from 'lucide-react';
 import { useNavigation } from '@/components/hooks/useNavigation';
 import { Spinner } from '@/components/ui/spinner';
 import { useUserStore } from '../../stores/useUserStore';
+import { Turnstile } from "@marsidev/react-turnstile";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -18,7 +19,7 @@ export default function SignupPage() {
   });
   const [passwordMatch, setPasswordMatch] = useState(true);
   const { navigate } = useNavigation();
-
+  const [token, setToken] = useState(null);
   const { signup, loading } = useUserStore();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,7 +38,7 @@ export default function SignupPage() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!passwordMatch) {return;};
-    await signup(formData);
+    await signup(formData, token);
   };
 
   const containerVariants = {
@@ -159,6 +160,12 @@ export default function SignupPage() {
                   </motion.p>
                 )}
               </motion.div>
+
+                    <Turnstile
+                      siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                      onSuccess={(token: any) => setToken(token)}
+                      onExpire={() => setToken(null)}
+                    />
 
               <motion.div
                 variants={itemVariants}
