@@ -175,24 +175,17 @@ export const razorpaySuccess = async (req, res) => {
 			});
 		}
 
-		const newOrder = await prisma.order.create({
+		const newOrder = await prisma.order.update({
+			where: {
+				razorpayOrderId: orderId
+			},
 			data: {
-				userId: userId,
-				totalAmount: razorpayOrder.amount / 100,
+				
 				razorpayOrderId: orderId,
 				razorpayPaymentId: paymentId,
-				mode: "online",
-				address: req.user.address, // Requires req.user to be populated (auth middleware)
-				status: "processing", // or default pending
-				orderItems: {
-					create: products.map(product => ({
-						productId: product.id,
-						quantity: product.quantity,
-						price: product.price // Using price or salePrice? Original code used notes.products which stored salePrice as price.
-					}))
-				}
+				status: "processing",
 			},
-			include: { user: true } // to get name for email
+			include: { user: true }
 		});
 
 		// updating product quantities
