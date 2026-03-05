@@ -154,7 +154,7 @@ export const razorpaySuccess = async (req, res) => {
 		const { paymentId, orderId, signature } = req.body;
 
 		const generatedSignature = crypto
-			.createHmac("sha256", process.env.RAZORPAY_TOKEN_SECRET)
+			.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
 			.update(orderId + "|" + paymentId)
 			.digest("hex");
 
