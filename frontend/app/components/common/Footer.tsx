@@ -41,7 +41,7 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">Contact</h4>
             <ul className="space-y-2.5 text-sm text-slate-400">
               <li className="flex items-center gap-2"><MapPin className="w-4 h-4" /> Lalbazar, Srinagar, Jammu & Kashmir Pincode: 190023</li>
-              <li className="flex items-center gap-2"><Phone className="w-4 h-4" /> +91 780953951, +91 9682124722</li>
+              <li className="flex items-center gap-2"><Phone className="w-4 h-4" /> +91 7780953951, +91 9682124722</li>
               <li className="flex items-center gap-2"><Mail className="w-4 h-4" /> sharwings@outlook.com</li>
               <li className="flex items-center gap-2"><Clock className="w-4 h-4" /> Mon - Fri: 9:00 AM - 6:00 PM IST, Sat: 10:00 AM - 2:00 PM IST</li>
             </ul>
