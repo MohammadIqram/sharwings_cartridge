@@ -305,7 +305,7 @@ export const createCheckoutSessionRazorpay = async (req, res) => {
 		const newOrder = await prisma.order.create({
 			data: {
 				userId: req.user.id,
-				totalAmount: totalAmount,
+				totalAmount: totalAmount/100,
 				mode: "online",
 				address: address,
 				orderItems: {
@@ -325,7 +325,7 @@ export const createCheckoutSessionRazorpay = async (req, res) => {
 			name: req.user?.name,
 			orderId: order.id,
 			orderItems: productName,
-			totalAmount: totalAmount,
+			totalAmount: totalAmount/100,
 			address: req.user?.address,
 			paymentMode: "Online Payment"
 		});
