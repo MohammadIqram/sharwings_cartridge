@@ -157,7 +157,7 @@ const OrdersTable = () => {
 
               <td className="px-6 py-4 text-sm font-medium">
                 <div
-                  onMouseEnter={() => setOpenMenuId(order._id)}
+                  onMouseEnter={() => setOpenMenuId(order.id)}
                   onMouseLeave={() => setOpenMenuId(null)}
                   className="inline-block relative"
                 >
@@ -167,13 +167,13 @@ const OrdersTable = () => {
                     <EllipsisVertical className="h-5 w-5" />
                   </button>
 
-                  {openMenuId === order._id && (
-                    <div className="absolute right-0 mt-2 w-40 bg-blue-50 border border-blue-300 rounded shadow-lg z-50">
+                  {openMenuId === order.id && (
+                    <div className="absolute right-0 mt-0 w-40 bg-white border border-blue-300 rounded shadow-lg z-50">
                       <ul>
                         {["pending", "processed", "shipped", "delivered", "cancelled"].map((status) => (
                           <li
                             key={status}
-                            className="px-4 py-2 hover:bg-blue-100 cursor-pointer text-blue-800 capitalize"
+                            className="px-4 py-2 hover:bg-blue-100 cursor-pointer text-black capitalize"
                             data-orderid={order.id}
                             data-id={status}
                             onClick={handleOrderStatusChange}

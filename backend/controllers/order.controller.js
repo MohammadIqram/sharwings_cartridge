@@ -150,6 +150,7 @@ export const showAllOrders = async (req, res) => {
 
         const totalPages = Math.ceil(total / limit);
         return res.status(200).json({
+            success: true,
             orders: formattedOrders,
             totalPages: totalPages
         });
