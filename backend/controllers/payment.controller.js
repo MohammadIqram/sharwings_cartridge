@@ -150,7 +150,6 @@ export const checkoutSuccess = async (req, res) => {
 
 export const razorpaySuccess = async (req, res) => {
 	try {
-		console.log("Razorpay success request body:", req.body);
 		const { paymentId, orderId, signature } = req.body;
 
 		const generatedSignature = crypto
@@ -183,7 +182,7 @@ export const razorpaySuccess = async (req, res) => {
 				
 				razorpayOrderId: orderId,
 				razorpayPaymentId: paymentId,
-				status: "processing",
+				status: "processed",
 			},
 			include: { user: true }
 		});
@@ -235,8 +234,6 @@ async function createNewCoupon(userId) {
 export const createCheckoutSessionRazorpay = async (req, res) => {
 	try {
 		const { products, address } = req.body;
-		console.log(req.body);
-		console.log('payment products: ', products);
 
 		if (!Array.isArray(products) || products.length === 0) {
 			return res.status(400).json({ error: "Invalid or empty products array" });
@@ -295,7 +292,7 @@ export const createCheckoutSessionRazorpay = async (req, res) => {
 		const productName = products.map(p => p.name).join(", ");
 
 		// Create Order and OrderItems
-		const newOrder = await prisma.order.create({
+		await prisma.order.create({
 			data: {
 				userId: req.user.id,
 				totalAmount: totalAmount/100,
@@ -307,7 +304,8 @@ export const createCheckoutSessionRazorpay = async (req, res) => {
 						quantity: Number(product?.quantity ?? 1),
 						price: resolveProductPrice(product) // using salePrice as price
 					}))
-				}
+				},
+				razorpayOrderId: order.id,
 			}
 		});
 
