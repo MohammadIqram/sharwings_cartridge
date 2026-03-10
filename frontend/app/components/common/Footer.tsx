@@ -26,6 +26,7 @@ export default function Footer() {
               <li><button onClick={() => navigate('/')} className="hover:text-white transition-colors">Home</button></li>
               <li><button onClick={() => navigate('/category/electronics')} className="hover:text-white transition-colors">Electronics</button></li>
               <li><button onClick={() => navigate('/category/home-living')} className="hover:text-white transition-colors">Home & Living</button></li>
+              <li><button onClick={() => navigate('/category/clearance-sale')} className="hover:text-white transition-colors">Clearance Sale</button></li>
             </ul>
           </div>
           <div>
