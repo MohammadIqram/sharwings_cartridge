@@ -160,7 +160,7 @@ export default function Pdp () {
               <Button size="lg" variant="outline" className="h-12" onClick={() => { for(let i = 0; i < qty; i++) onAddToCart(product); navigate('/cart'); }}>Buy Now</Button>
             </div>
             <div className="mt-6 grid grid-cols-3 gap-3">
-              {[{ icon: Truck, text: 'Free Delivery' }, { icon: RotateCcw, text: '30-Day Returns' }, { icon: Shield, text: 'Warranty' }].map((b, i) => (
+              {[{ icon: Truck, text: 'Free Delivery' }, { icon: RotateCcw, text: '7-Day Returns' }, { icon: Shield, text: 'Warranty' }].map((b, i) => (
                 <div key={i} className="flex flex-col items-center gap-1 p-3 rounded-lg bg-muted/50 text-center">
                   <b.icon className="w-4 h-4 text-muted-foreground" /><span className="text-xs text-muted-foreground">{b.text}</span>
                 </div>
