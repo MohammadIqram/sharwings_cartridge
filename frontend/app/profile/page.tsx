@@ -768,7 +768,7 @@ export default function ProfilePage() {
                   setExpandedOrder(expandedOrder === order.id ? null : order.id)
                 }
               >
-                <div className="grid grid-cols-5 gap-4 items-center">
+                <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4 items-center">
                   {/* Order ID */}
                   <div>
                     <p className="text-xs text-gray-500">Order ID</p>
