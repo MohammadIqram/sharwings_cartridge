@@ -24,8 +24,6 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2.5 text-sm text-slate-400">
               <li><button onClick={() => navigate('/')} className="hover:text-white transition-colors">Home</button></li>
-              <li><button onClick={() => navigate('/category/electronics')} className="hover:text-white transition-colors">Electronics</button></li>
-              <li><button onClick={() => navigate('/category/home-living')} className="hover:text-white transition-colors">Home & Living</button></li>
               <li><button onClick={() => navigate('/category/clearance-sale')} className="hover:text-white transition-colors">Clearance Sale</button></li>
             </ul>
           </div>
