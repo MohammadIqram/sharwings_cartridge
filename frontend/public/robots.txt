@@ -1,0 +1,12 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /account
+Disallow: /cart
+
+# Host
+Host: https://sharwings.in
+
+# Sitemaps
+Sitemap: https://sharwings.in/sitemap.xml

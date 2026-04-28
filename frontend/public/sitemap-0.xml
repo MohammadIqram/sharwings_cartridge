@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+<url><loc>https://sharwings.in/admin-dashboard/order</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in/admin-dashboard/order/return</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in/admin-dashboard</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in/admin-dashboard/product/create</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in/admin-dashboard/product</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in/admin-dashboard/warranty-claim</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in/category</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in/claim-warranty</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in/forgot-password</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in/login</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in/privacy-policy</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in/profile</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in/purchase-failed</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in/purchase-success</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in/reset-password-confirm</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in/return-form</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in/return-policy</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in/shipping-policy</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in/signup</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://sharwings.in/terms-and-conditions</loc><lastmod>2026-04-28T14:19:33.540Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+</urlset>
