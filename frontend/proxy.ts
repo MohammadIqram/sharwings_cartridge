@@ -14,6 +14,7 @@ const PUBLIC_PATHS = [
   '/return-form',
   '/forgot-password',
   '/reset-password-confirm',
+  '/sitemap.xml',
 ];
 
 
