@@ -14,7 +14,6 @@ const PUBLIC_PATHS = [
   '/return-form',
   '/forgot-password',
   '/reset-password-confirm',
-  '/sitemap.xml',
 ];
 
 
@@ -29,6 +28,8 @@ export function proxy(req: NextRequest) {
     PUBLIC_PATHS.includes(pathname) || // public pages
     pathname.startsWith('/images/') ||
     pathname === '/favicon.ico' ||
+    pathname.startsWith('/sitemap') ||
+    pathname === '/robots.txt' ||
     
     // Dynamic public routes
     pathname.startsWith('/category/') ||
