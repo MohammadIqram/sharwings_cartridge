@@ -29,6 +29,7 @@ export function proxy(req: NextRequest) {
     pathname.startsWith('/images/') ||
     pathname === '/favicon.ico' ||
     pathname.startsWith('/sitemap') ||
+    pathname.endsWith('.xml') ||
     pathname === '/robots.txt' ||
     
     // Dynamic public routes
