@@ -105,10 +105,13 @@ export default function HomePage() {
         <div className="relative h-1/2 w-full">
           {cat.image ? (
             <Image
+              data-cid={cat.id}
+              data-cname={cat.name}
+              key={cat.id}
               src={cat.image}
               alt={cat.name}
               fill
-              className="object-cover"
+              className={`${ cat.id === 'clearancesale' ? 'object-fill' :  'object-cover' }`}
               sizes="(min-width: 768px) 25vw, 50vw"
             />
           ) : (
